@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spyder Client</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      user-select: none;
+      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    }
+
+    :root {
+      --bg-overlay: rgba(15, 17, 26, 0.85);
+      --bg-image: url('assets/aranabanner.png');
+      --bg-header: rgba(255, 255, 255, 0.03);
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --border-medium: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.12);
+      --border-hover: rgba(255, 255, 255, 0.3);
+      --text-primary: #ffffff;
+      --text-secondary: #cccccc;
+      --text-muted: #999999;
+      --text-faint: #888888;
+      --bg-card: #111111;
+      --bg-card-alt: #1a1a1a;
+      --bg-input: #000000;
+      --bg-hover: rgba(255, 255, 255, 0.06);
+      --bg-active: rgba(255, 255, 255, 0.12);
+      --accent-bg: #ffffff;
+      --accent-text: #000000;
+      --skin-preview-bg: #2a2a2a;
+      --footer-bg: #0a0a0a;
+      --dropdown-bg: #141414;
+      --dropdown-bg-hover: #1f1f1f;
+    }
+
+    body.light-mode {
+      --bg-overlay: rgba(240, 240, 240, 0.88);
+      --bg-image: url('assets/aranabannerinvertido.png');
+      --bg-header: rgba(0, 0, 0, 0.03);
+      --border-subtle: rgba(0, 0, 0, 0.08);
+      --border-medium: rgba(0, 0, 0, 0.12);
+      --border-strong: rgba(0, 0, 0, 0.18);
+      --border-hover: rgba(0, 0, 0, 0.4);
+      --text-primary: #111111;
+      --text-secondary: #333333;
+      --text-muted: #555555;
+      --text-faint: #666666;
+      --bg-card: #ffffff;
+      --bg-card-alt: #e9e9e9;
+      --bg-input: #ffffff;
+      --bg-hover: rgba(0, 0, 0, 0.05);
+      --bg-active: rgba(0, 0, 0, 0.1);
+      --accent-bg: #111111;
+      --accent-text: #ffffff;
+      --skin-preview-bg: #dddddd;
+      --footer-bg: #f0f0f0;
+      --dropdown-bg: #ffffff;
+      --dropdown-bg-hover: #eeeeee;
+    }
+
+    body {
+      background:
+        linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+        var(--bg-image) center center / cover no-repeat;
+      color: var(--text-primary);
+      transition: background 0.25s ease, color 0.25s ease;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 20px 30px;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-text {
+      display: flex;
+      align-items: baseline;
+      line-height: 1;
+      gap: 6px;
+    }
+
+    .logo img {
+      height: 80px;
+      width: 80px;
+      object-fit: contain;
+    }
+
+    .logo-bold {
+      font-weight: 800;
+    }
+
+    .logo-thin {
+      font-weight: 400;
+    }
+
+    .main-layout {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 90px;
+      flex-shrink: 0;
+      background: var(--bg-header);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 0;
+      gap: 8px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 3px;
+    }
+
+    .sidebar-btn {
+      width: 74px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 4px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .sidebar-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .sidebar-btn span {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .sidebar-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .sidebar-btn.active {
+      background: var(--bg-active);
+      color: var(--text-primary);
+      border: 1px solid var(--text-primary);
+    }
+
+    .sidebar-divider {
+      width: 60%;
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 8px 0;
+      flex-shrink: 0;
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .view {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+    }
+
+    .view.active {
+      display: flex;
+      animation: sectionFallIn 0.35s ease;
+    }
+
+    @keyframes sectionFallIn {
+      from {
+        opacity: 0;
+        transform: translateY(-18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .container {
+      padding: 40px 30px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .status-card {
+      background: var(--bg-card);
+      padding: 20px 40px;
+      border-radius: 12px;
+      border: 1px solid var(--border-medium);
+      margin-bottom: 25px;
+    }
+
+    .path-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: monospace;
+      margin-top: 8px;
+    }
+
+    footer {
+      padding: 15px 30px;
+      background: var(--footer-bg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .user-profile-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .profile-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-container {
+      width: 42px;
+      height: 42px;
+      border-radius: 6px;
+      border: 2px solid var(--text-primary);
+      background: var(--bg-card-alt);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .username-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .username {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 120px;
+    }
+
+    .ms-icon {
+      width: 13px;
+      height: 13px;
+      display: inline-grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+
+    .ms-icon span {
+      display: block;
+    }
+
+    .status-badge {
+      display: none;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-badge.verified {
+      color: var(--text-primary);
+    }
+
+    .status-badge.offline {
+      color: var(--text-secondary);
+    }
+
+    .auth-btn-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .auth-btn {
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-strong);
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .auth-btn:hover {
+      background: var(--bg-active);
+      color: var(--text-primary);
+      border-color: var(--border-hover);
+    }
+
+    .auth-btn.offline-btn {
+      background: var(--bg-active);
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    .auth-btn.offline-btn:hover {
+      background: var(--bg-active);
+      color: var(--text-primary);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 25px;
+      width: 320px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .modal-card h3 {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+
+    .modal-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .modal-input:focus {
+      border-color: var(--text-primary);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+
+    .modal-btn.cancel {
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+    }
+
+    .modal-btn.confirm {
+      background: var(--accent-bg);
+      color: var(--accent-text);
+    }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .dropdown-btn {
+      background: var(--dropdown-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      padding: 14px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .dropdown-btn:hover {
+      background: var(--dropdown-bg-hover);
+      border-color: var(--text-primary);
+    }
+
+    .play-btn {
+      background: var(--accent-bg);
+      color: var(--accent-text);
+      border: none;
+      padding: 14px 45px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    .play-btn:hover {
+      filter: brightness(0.9);
+      transform: translateY(-2px);
+    }
+
+    .view-inner {
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 30px;
+    }
+
+    .view-inner h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .view-inner-wide {
+      max-width: 1180px;
+      width: 100%;
+      margin: 0;
+      padding: 24px 30px 40px;
+    }
+
+    .view-inner-wide h2 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .wardrobe-layout {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .wardrobe-preview-col {
+      flex: 0 0 300px;
+    }
+
+    .wardrobe-options-col {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .wardrobe-capes-col {
+      flex: 0 0 320px;
+    }
+
+    .capes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    .cape-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 6px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      cursor: pointer;
+      background: var(--bg-header);
+      transition: all 0.15s ease;
+    }
+
+    .cape-option:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+    }
+
+    .cape-option.selected {
+      border-color: var(--text-primary);
+      background: var(--bg-active);
+    }
+
+    .cape-empty-icon,
+    .cape-thumb {
+      width: 40px;
+      height: 64px;
+      border-radius: 4px;
+      background-color: var(--bg-input);
+      flex-shrink: 0;
+    }
+
+    .cape-empty-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-faint);
+      font-size: 0.7rem;
+    }
+
+    .cape-thumb {
+      background-repeat: no-repeat;
+      background-size: 256px 128px;
+      background-position: -4px -4px;
+      image-rendering: pixelated;
+    }
+
+    .cape-option.selected span {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .hw-card, .ram-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .hw-card h3, .ram-card h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+    }
+
+    .hw-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.85rem;
+    }
+
+    .hw-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .hw-row span:first-child {
+      color: var(--text-muted);
+    }
+
+    .hw-row span:last-child {
+      color: var(--text-primary);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .ram-slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    #ramSlider {
+      flex: 1;
+      accent-color: var(--text-primary);
+    }
+
+    #ramValue {
+      min-width: 55px;
+      text-align: right;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .ram-hint {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--text-faint);
+      line-height: 1.4;
+    }
+
+    .placeholder-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .placeholder-card h2 {
+      margin-bottom: 8px;
+    }
+
+    .social-search-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-search-row input {
+      flex: 1;
+    }
+
+    .search-result-item,
+    .friend-request-item,
+    .friend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .search-result-item:last-child,
+    .friend-request-item:last-child,
+    .friend-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .social-person {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .social-person img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      image-rendering: pixelated;
+    }
+
+    .social-person span {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .social-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    #view-social .view-inner-wide {
+      max-width: 1500px;
+    }
+
+    .social-columns {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-top: 20px;
+    }
+
+    .social-col {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .social-col:first-child {
+      flex: 0 0 360px;
+    }
+
+    .social-col:last-child {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-card {
+      display: flex;
+      flex-direction: column;
+      height: 560px;
+    }
+
+    .chat-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .chat-card-header h3 {
+      margin-bottom: 0;
+    }
+
+    .chat-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-faint);
+      font-size: 1.2rem;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .chat-close-btn:hover {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 4px 10px 12px 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    .chat-bubble {
+      max-width: 70%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    .chat-bubble.theirs {
+      align-self: flex-start;
+      background: var(--skin-preview-bg);
+      color: var(--text-primary);
+      border-bottom-left-radius: 2px;
+    }
+
+    .chat-bubble.mine {
+      align-self: flex-end;
+      background: var(--accent-bg);
+      color: var(--accent-text);
+      border-bottom-right-radius: 2px;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+    }
+
+    .changelog-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .changelog-card-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .changelog-version {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .changelog-date {
+      font-size: 0.75rem;
+      color: var(--text-faint);
+    }
+
+    .changelog-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .changelog-list li {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .changelog-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--text-faint);
+    }
+
+    .skin-preview-card {
+      background: var(--skin-preview-bg);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #skinViewer3d {
+      cursor: grab;
+    }
+
+    #skinViewer3d:active {
+      cursor: grabbing;
+    }
+
+    .variant-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .variant-option {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+    }
+
+    .variant-option:has(input:checked) {
+      border-color: var(--text-primary);
+      background: var(--bg-active);
+      color: var(--text-primary);
+    }
+
+    .variant-option input {
+      accent-color: var(--text-primary);
+    }
+
+    .skin-file-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+    #launchProgressWrap {
+      max-height: 0;
+      overflow: hidden;
+      flex-shrink: 0;
+      transition: max-height 0.25s ease;
+    }
+    #launchProgressWrap.visible {
+      max-height: 42px;
+    }
+
+    #launchProgressBar {
+      position: relative;
+      height: 34px;
+      margin: 4px 20px;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(90deg, #2563eb, #dc2626);
+      background-size: 200% 100%;
+    }
+
+    #launchProgressBar.indeterminate {
+      animation: launchProgressSlide 1.4s ease-in-out infinite;
+    }
+
+    @keyframes launchProgressSlide {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    #launchProgressMask {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      background: rgba(10, 10, 14, 0.55);
+      transition: width 0.25s ease;
+    }
+
+    #launchProgressText {
+      position: relative;
+      z-index: 1;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+    }
+
+    .version-tag {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo"><img id="headerLogoImg" src="assets/aranasinfondo.png" alt="Falcom logo"><span class="logo-text"><span class="logo-bold">Spyder</span> <span class="logo-thin">CLIENT</span></span></div>
+    <span class="version-tag">v1.0.4</span>
+  </header>
+
+  <div class="main-layout">
+    <aside class="sidebar">
+      <button class="sidebar-btn active" data-view="inicio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/></svg>
+        <span>Inicio</span>
+      </button>
+      <button class="sidebar-btn" data-view="social">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 20v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Social</span>
+      </button>
+      <button class="sidebar-btn" data-view="wardrobe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M5 8 12 4l7 4"/><path d="M5 8v13h14V8"/><path d="M12 12v9"/><path d="M5 8 3 10"/><path d="M19 8l2 2"/></svg>
+        <span>Vestidor</span>
+      </button>
+      <button class="sidebar-btn" data-view="storage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8l9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>
+        <span>Almacenamiento</span>
+      </button>
+
+      <button class="sidebar-btn" data-view="changelog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+        <span>Changelog</span>
+      </button>
+
+      <button class="sidebar-btn" data-view="config">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"/></svg>
+        <span>Configuración</span>
+      </button>
+    </aside>
+
+    <div class="content-area">
+      <div class="view active" id="view-inicio">
+        <div class="container">
+        </div>
+      </div>
+
+      <div class="view" id="view-config">
+        <div class="view-inner">
+          <h2>Configuración</h2>
+
+          <div class="hw-card">
+            <h3>Hardware detectado</h3>
+            <div class="hw-row"><span>Procesador</span><span id="hwCpu">Detectando...</span></div>
+            <div class="hw-row"><span>Núcleos</span><span id="hwCores">-</span></div>
+            <div class="hw-row"><span>RAM total</span><span id="hwRamTotal">-</span></div>
+            <div class="hw-row"><span>Sistema</span><span id="hwPlatform">-</span></div>
+            <div class="hw-row"><span>Gráficos</span><span id="hwGpu">Detectando...</span></div>
+            <div class="hw-row"><span>Almacenamiento</span><span id="hwDisk">Detectando...</span></div>
+          </div>
+
+          <div class="ram-card">
+            <h3>RAM asignada al juego</h3>
+            <div class="ram-slider-row">
+              <input type="range" id="ramSlider" min="1" max="8" step="0.5" value="4">
+              <span id="ramValue">4 GB</span>
+            </div>
+            <p class="ram-hint">Recomendado: no asignes más del 50-70% de tu RAM total para evitar que el sistema se vuelva lento.</p>
+          </div>
+
+          <div class="ram-card">
+            <h3>Apariencia</h3>
+            <div class="variant-row">
+              <label class="variant-option" id="themeDarkOption">
+                <input type="radio" name="themeMode" value="dark" checked>
+                <span>Modo Oscuro</span>
+              </label>
+              <label class="variant-option" id="themeLightOption">
+                <input type="radio" name="themeMode" value="light">
+                <span>Modo Claro</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="view-changelog">
+        <div class="view-inner">
+          <h2>Changelog</h2>
+          <div id="changelogList"></div>
+        </div>
+      </div>
+
+      <div class="view" id="view-storage">
+        <div class="view-inner">
+          <div class="placeholder-card">
+            <h2>Almacenamiento</h2>
+            <p>Esta sección estará disponible próximamente.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="view-social">
+        <div class="view-inner-social">
+          <h2>Social</h2>
+
+          <div class="placeholder-card" id="socialLocked">
+            <h2>Función Premium</h2>
+            <p>Necesitas iniciar sesión con una cuenta de Microsoft (Minecraft Java original) para usar Social.</p>
+          </div>
+
+          <div id="socialUnlocked" style="display: none;">
+            <div class="hw-card">
+              <h3>Buscar jugadores</h3>
+              <div class="social-search-row">
+                <input type="text" id="friendSearchInput" class="skin-file-input" placeholder="Nombre de usuario premium...">
+                <button class="auth-btn offline-btn" id="friendSearchBtn">Buscar</button>
+              </div>
+              <div id="friendSearchResults" style="margin-top: 10px;"></div>
+            </div>
+
+            <div class="social-columns">
+              <div class="social-col social-col-fixed">
+                <div class="hw-card">
+                  <h3>Solicitudes recibidas</h3>
+                  <div id="friendRequestsList"><p class="ram-hint">No tienes solicitudes pendientes.</p></div>
+                </div>
+
+                <div class="hw-card">
+                  <h3>Mis amigos</h3>
+                  <div id="friendsList"><p class="ram-hint">Aún no tienes amigos agregados.</p></div>
+                </div>
+              </div>
+
+              <div class="social-col social-col-chat">
+                <div class="hw-card chat-card" id="chatCard" style="display: none;">
+                  <div class="chat-card-header">
+                    <h3 id="chatWithName">Chat</h3>
+                    <button class="chat-close-btn" id="chatCloseBtn" title="Cerrar chat">✕</button>
+                  </div>
+                  <div class="chat-messages" id="chatMessages"></div>
+                  <div class="chat-input-row">
+                    <input type="text" id="chatInput" class="skin-file-input" placeholder="Escribe un mensaje...">
+                    <button class="play-btn" id="chatSendBtn" style="padding: 10px 22px;">Enviar</button>
+                  </div>
+                </div>
+                <div class="hw-card" id="chatEmptyState">
+                  <p class="ram-hint">Selecciona un amigo de la lista para chatear.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view" id="view-wardrobe">
+        <div class="view-inner-wide">
+          <h2>Vestidor</h2>
+
+          <div class="placeholder-card" id="wardrobeLocked">
+            <h2>Función Premium</h2>
+            <p>Necesitas iniciar sesión con una cuenta de Microsoft (Minecraft Java original) para cambiar tu skin.</p>
+          </div>
+
+          <div id="wardrobeUnlocked" class="wardrobe-layout" style="display: none;">
+            <div class="wardrobe-preview-col">
+              <div class="skin-preview-card">
+                <canvas id="skinViewer3d" width="300" height="360"></canvas>
+              </div>
+              <p class="ram-hint" style="text-align: center; margin-top: 10px; margin-bottom: 20px;">Arrastra con el mouse para girar el modelo</p>
+              <button class="auth-btn" id="refreshSkinBtn" style="width: 100%;">Actualizar vista previa</button>
+            </div>
+
+            <div class="wardrobe-options-col">
+              <div class="hw-card">
+                <h3>Modelo de brazos</h3>
+                <div class="variant-row">
+                  <label class="variant-option">
+                    <input type="radio" name="skinVariant" value="classic" checked>
+                    <span>Clásico</span>
+                  </label>
+                  <label class="variant-option">
+                    <input type="radio" name="skinVariant" value="slim">
+                    <span>Slim</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="hw-card">
+                <h3>Nueva skin</h3>
+                <input type="file" id="skinFileInput" accept="image/png" class="skin-file-input">
+                <p class="ram-hint">Formato PNG, 64x64 (o 64x32 clásico).</p>
+                <button class="play-btn" id="applySkinBtn" style="margin-top: 14px; width: 100%;">Aplicar Skin</button>
+                <p id="skinStatusMsg" class="ram-hint" style="margin-top: 10px;"></p>
+              </div>
+            </div>
+
+            <div class="wardrobe-capes-col">
+              <div class="hw-card">
+                <h3>Capas</h3>
+                <div class="capes-grid" id="capesGrid">
+                  <p class="ram-hint">Cargando capas...</p>
+                </div>
+                <p id="capeStatusMsg" class="ram-hint" style="margin-top: 10px;"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="user-profile-card">
+      <div class="profile-info">
+        <div class="avatar-container">
+          <img class="avatar-img" id="userAvatar" src="https://mc-heads.net/avatar/MNS/40" alt="Avatar">
+        </div>
+        <div class="user-details">
+          <div class="username-row">
+            <span class="username" id="usernameText">Sin Sesión</span>
+            <div class="ms-icon" id="msIcon" title="Microsoft Account">
+              <span style="background: #f25022;"></span>
+              <span style="background: #7fba00;"></span>
+              <span style="background: #00a4ef;"></span>
+              <span style="background: #ffb900;"></span>
+            </div>
+          </div>
+          <div class="status-badge verified" id="statusVerified">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>Cuenta verificada</span>
+          </div>
+          <div class="status-badge offline" id="statusOffline">
+            <span>● Modo Offline</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-btn-group" id="authBtnGroup">
+        <button class="auth-btn" id="msLoginBtn">Iniciar sesión</button>
+        <button class="auth-btn offline-btn" id="offlineLoginBtn">Iniciar Offline</button>
+      </div>
+      <button class="auth-btn" id="logoutBtn" style="display: none;">Cerrar sesión</button>
+    </div>
+
+    <div class="action-group">
+      <button class="dropdown-btn" id="addInstanceBtn">Agregar Instancia</button>
+
+      <button class="play-btn" id="launchBtn">JUGAR</button>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="offlineModal">
+    <div class="modal-card">
+      <h3>Ingresa tu Nickname</h3>
+      <input type="text" class="modal-input" id="offlineUsernameInput" placeholder="Ej: Steve_99" maxlength="16">
+      <div class="modal-actions">
+        <button class="modal-btn cancel" id="closeModalBtn">Cancelar</button>
+        <button class="modal-btn confirm" id="confirmOfflineBtn">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="addInstanceModal">
+    <div class="modal-card">
+      <h3>Agregar instancia privada</h3>
+      <input type="text" class="modal-input" id="instanceKeyInput" placeholder="Introduce tu key de acceso" maxlength="64">
+      <div class="modal-actions">
+        <button class="modal-btn cancel" id="closeAddInstanceModalBtn">Cancelar</button>
+        <button class="modal-btn confirm" id="confirmAddInstanceBtn">Agregar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="launchProgressWrap">
+    <div id="launchProgressBar">
+      <div id="launchProgressMask"></div>
+      <span id="launchProgressText"></span>
+    </div>
+  </div>
+
+  <script src="node_modules/skinview3d/bundles/skinview3d.bundle.js"></script>
+  <script src="node_modules/firebase/firebase-app-compat.js"></script>
+  <script src="node_modules/firebase/firebase-firestore-compat.js"></script>
+  <script>
+    const path = require('path');
+    const fs = require('fs');
+    const os = require('os');
+    const { ipcRenderer } = require('electron');
+
+    const CHANGELOG_ENTRIES = [
+      {
+        version: 'v1.0.4',
+        date: '30 de agosto de 2026',
+        changes: [
+          'Rework de todas las interfaces',
+          'Sistema social de mensajería',
+          'Notificaciones de mensajes',
+          'Sistema de RPC (Actividad) en Discord.'
+        ]
+      },
+      {
+        version: 'v1.0.3',
+        date: '27 de agosto de 2026',
+        changes: [
+          'Lanzamiento inicial de Spyder Client',
+          'Inicio de sesión con Microsoft y modo Offline',
+          'Vestidor con cambio de skins y capas en visor 3D',
+          'Modo oscuro y modo claro'
+        ]
+      }
+    ];
+
+    const changelogList = document.getElementById('changelogList');
+
+    function renderChangelog() {
+      changelogList.innerHTML = CHANGELOG_ENTRIES.map((entry) => `
+        <div class="changelog-card">
+          <div class="changelog-card-header">
+            <span class="changelog-version">${entry.version}</span>
+            <span class="changelog-date">${entry.date}</span>
+          </div>
+          <ul class="changelog-list">
+            ${entry.changes.map((change) => `<li>${change}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+    }
+
+    renderChangelog();
+
+    const falcomPath = path.join(process.env.APPDATA, '.falcom-client');
+    const instancesPath = path.join(falcomPath, 'instances');
+    const configPath = path.join(falcomPath, 'config.json');
+
+    if (!fs.existsSync(instancesPath)) {
+      fs.mkdirSync(instancesPath, { recursive: true });
+    }
+
+    const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    const views = document.querySelectorAll('.view');
+
+    const DISCORD_SECTION_LABELS = {
+      inicio: 'En el inicio',
+      social: 'En Social',
+      wardrobe: 'Personalizando su skin',
+      storage: 'En Almacenamiento',
+      changelog: 'Viendo el Changelog',
+      config: 'En Configuración'
+    };
+
+    sidebarBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        sidebarBtns.forEach(b => b.classList.remove('active'));
+        views.forEach(v => v.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('view-' + btn.dataset.view).classList.add('active');
+
+        const sectionLabel = DISCORD_SECTION_LABELS[btn.dataset.view] || 'En el launcher';
+        ipcRenderer.invoke('update-discord-presence', {
+          details: 'En el launcher',
+          state: sectionLabel
+        });
+      });
+    });
+
+    const hwCpu = document.getElementById('hwCpu');
+    const hwCores = document.getElementById('hwCores');
+    const hwRamTotal = document.getElementById('hwRamTotal');
+    const hwPlatform = document.getElementById('hwPlatform');
+    const ramSlider = document.getElementById('ramSlider');
+    const ramValue = document.getElementById('ramValue');
+
+    const totalRamGB = Math.round((os.totalmem() / (1024 ** 3)) * 10) / 10;
+    const cpus = os.cpus();
+
+    hwCpu.innerText = cpus.length ? cpus[0].model.trim() : 'Desconocido';
+    hwCores.innerText = `${cpus.length} núcleos`;
+    hwRamTotal.innerText = `${totalRamGB} GB`;
+    hwPlatform.innerText = `${os.platform()} (${os.arch()})`;
+
+    ramSlider.max = Math.max(1, Math.floor(totalRamGB));
+
+    const hwGpu = document.getElementById('hwGpu');
+    const hwDisk = document.getElementById('hwDisk');
+
+    ipcRenderer.invoke('get-hardware-info').then((info) => {
+      hwGpu.innerText = info.gpu || 'No disponible';
+
+      if (info.disk) {
+        hwDisk.innerText = `${info.disk.free} GB libres de ${info.disk.total} GB`;
+      } else {
+        hwDisk.innerText = 'No disponible';
+      }
+    }).catch((err) => {
+      console.error('Error obteniendo hardware:', err);
+      hwGpu.innerText = 'No disponible';
+      hwDisk.innerText = 'No disponible';
+    });
+
+    let appConfig = { ram: Math.max(1, Math.min(4, Math.floor(totalRamGB / 2))) };
+
+    if (fs.existsSync(configPath)) {
+      try {
+        appConfig = { ...appConfig, ...JSON.parse(fs.readFileSync(configPath, 'utf-8')) };
+      } catch (err) {
+        console.error('Config corrupta, usando valores por defecto:', err);
+      }
+    }
+
+    ramSlider.value = appConfig.ram;
+    ramValue.innerText = `${appConfig.ram} GB`;
+
+    ramSlider.addEventListener('input', () => {
+      ramValue.innerText = `${ramSlider.value} GB`;
+    });
+
+    ramSlider.addEventListener('change', () => {
+      appConfig.ram = Number(ramSlider.value);
+      fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
+    });
+
+    const headerLogoImg = document.getElementById('headerLogoImg');
+    const themeDarkRadio = document.querySelector('input[name="themeMode"][value="dark"]');
+    const themeLightRadio = document.querySelector('input[name="themeMode"][value="light"]');
+
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        document.body.classList.add('light-mode');
+        headerLogoImg.src = 'assets/arananegrasinfondo.png';
+        if (themeLightRadio) themeLightRadio.checked = true;
+      } else {
+        document.body.classList.remove('light-mode');
+        headerLogoImg.src = 'assets/aranasinfondo.png';
+        if (themeDarkRadio) themeDarkRadio.checked = true;
+      }
+    }
+
+    applyTheme(appConfig.theme === 'light' ? 'light' : 'dark');
+
+    document.querySelectorAll('input[name="themeMode"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const theme = radio.value;
+        applyTheme(theme);
+        appConfig.theme = theme;
+        fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
+      });
+    });
+
+    let selectedInstance = null;
+
+    const addInstanceBtn = document.getElementById('addInstanceBtn');
+    const addInstanceModal = document.getElementById('addInstanceModal');
+    const instanceKeyInput = document.getElementById('instanceKeyInput');
+    const closeAddInstanceModalBtn = document.getElementById('closeAddInstanceModalBtn');
+    const confirmAddInstanceBtn = document.getElementById('confirmAddInstanceBtn');
+
+    addInstanceBtn.addEventListener('click', () => {
+      instanceKeyInput.value = '';
+      addInstanceModal.classList.add('active');
+      instanceKeyInput.focus();
+    });
+
+    closeAddInstanceModalBtn.addEventListener('click', () => {
+      addInstanceModal.classList.remove('active');
+    });
+
+    const TEMP_INSTANCE_CODE = 'VANILLA1201';
+
+    confirmAddInstanceBtn.addEventListener('click', () => {
+      const key = instanceKeyInput.value.trim();
+      if (!key) {
+        alert('Introduce una key de acceso válida.');
+        return;
+      }
+
+      if (key.toUpperCase() === TEMP_INSTANCE_CODE) {
+        selectedInstance = 'vanilla-1.20.1';
+        alert('Instancia agregada: Minecraft 1.20.1 Vanilla. Ya puedes presionar JUGAR.');
+        addInstanceModal.classList.remove('active');
+        return;
+      }
+
+      alert('Key no reconocida.');
+    });
+
+    const usernameText = document.getElementById('usernameText');
+    const userAvatar = document.getElementById('userAvatar');
+    const msIcon = document.getElementById('msIcon');
+    const statusVerified = document.getElementById('statusVerified');
+    const statusOffline = document.getElementById('statusOffline');
+    const authBtnGroup = document.getElementById('authBtnGroup');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    const offlineModal = document.getElementById('offlineModal');
+    const offlineLoginBtn = document.getElementById('offlineLoginBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const confirmOfflineBtn = document.getElementById('confirmOfflineBtn');
+    const offlineUsernameInput = document.getElementById('offlineUsernameInput');
+
+    let userSession = null;
+    const msLoginBtn = document.getElementById('msLoginBtn');
+
+    function applyMicrosoftSession(user) {
+      userSession = {
+        name: user.name,
+        uuid: user.uuid,
+        mclcToken: user.mclcToken,
+        type: 'microsoft'
+      };
+
+      usernameText.innerText = user.name;
+      userAvatar.src = `https://mc-heads.net/avatar/${user.uuid}/40`;
+      msIcon.style.display = 'inline-grid';
+      statusVerified.style.display = 'flex';
+      statusOffline.style.display = 'none';
+
+      authBtnGroup.style.display = 'none';
+      logoutBtn.style.display = 'block';
+
+      delete appConfig.offlineUser;
+      fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
+
+      initFirebase();
+      upsertSocialUser();
+      setupGlobalMessageNotifications();
+    }
+
+    function applyOfflineSession(nick) {
+      userSession = { name: nick, type: 'offline' };
+
+      usernameText.innerText = nick;
+      userAvatar.src = `https://mc-heads.net/avatar/${nick}/40`;
+      msIcon.style.display = 'none';
+      statusVerified.style.display = 'none';
+      statusOffline.style.display = 'flex';
+
+      authBtnGroup.style.display = 'none';
+      logoutBtn.style.display = 'block';
+    }
+
+    msLoginBtn.addEventListener('click', async () => {
+      msLoginBtn.disabled = true;
+      msLoginBtn.innerText = 'Conectando...';
+
+      const result = await ipcRenderer.invoke('msmc-login');
+
+      msLoginBtn.disabled = false;
+      msLoginBtn.innerText = 'Iniciar sesión';
+
+      if (!result.success) {
+        if (!/cerrada|cancel/i.test(result.error || '')) {
+          alert(result.error);
+        }
+        return;
+      }
+
+      applyMicrosoftSession(result.user);
+    });
+
+    offlineLoginBtn.addEventListener('click', () => {
+      offlineModal.classList.add('active');
+      offlineUsernameInput.focus();
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+      offlineModal.classList.remove('active');
+      offlineUsernameInput.value = '';
+    });
+
+    confirmOfflineBtn.addEventListener('click', () => {
+      const nick = offlineUsernameInput.value.trim();
+      if (!nick) {
+        alert('Por favor ingresa un usuario válido');
+        return;
+      }
+
+      applyOfflineSession(nick);
+
+      appConfig.offlineUser = nick;
+      fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
+      ipcRenderer.invoke('clear-microsoft-session');
+
+      offlineModal.classList.remove('active');
+      offlineUsernameInput.value = '';
+    });
+
+    logoutBtn.addEventListener('click', () => {
+      userSession = null;
+
+      usernameText.innerText = "Sin Sesión";
+      userAvatar.src = "https://mc-heads.net/avatar/MNS/40";
+      msIcon.style.display = 'inline-grid';
+      statusVerified.style.display = 'none';
+      statusOffline.style.display = 'none';
+
+      authBtnGroup.style.display = 'flex';
+      logoutBtn.style.display = 'none';
+
+      delete appConfig.offlineUser;
+      fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
+      ipcRenderer.invoke('clear-microsoft-session');
+
+      if (notificationListenerUnsubscribe) {
+        notificationListenerUnsubscribe();
+        notificationListenerUnsubscribe = null;
+      }
+      notificationsInitialized = false;
+      socialInitialized = false;
+    });
+
+    const launchBtn = document.getElementById('launchBtn');
+    const launchProgressWrap = document.getElementById('launchProgressWrap');
+    const launchProgressBar = document.getElementById('launchProgressBar');
+    const launchProgressMask = document.getElementById('launchProgressMask');
+    const launchProgressText = document.getElementById('launchProgressText');
+
+    function setStatusLabel(text) {
+      launchProgressText.innerText = text;
+    }
+
+    function showProgressBar() {
+      launchProgressWrap.classList.add('visible');
+      launchProgressBar.classList.add('indeterminate');
+      launchProgressMask.style.width = '100%';
+      setStatusLabel('Preparando...');
+    }
+
+    function updateProgressBar(percent) {
+      const clamped = Math.min(100, Math.max(0, percent));
+      launchProgressBar.classList.remove('indeterminate');
+      launchProgressMask.style.width = `${100 - clamped}%`;
+    }
+
+    function hideProgressBar() {
+      launchProgressWrap.classList.remove('visible');
+      launchProgressBar.classList.remove('indeterminate');
+      launchProgressMask.style.width = '100%';
+      setStatusLabel('');
+    }
+
+    launchBtn.addEventListener('click', async () => {
+      if (!userSession) {
+        alert('Ingresa con un usuario Offline o inicia sesión con Microsoft antes de jugar.');
+        return;
+      }
+      if (!selectedInstance) {
+        alert('Agrega o selecciona una instancia antes de jugar.');
+        return;
+      }
+
+      launchBtn.disabled = true;
+      launchBtn.innerText = 'Iniciando...';
+      showProgressBar();
+
+      const result = await ipcRenderer.invoke('launch-game', {
+        userSession,
+        instance: selectedInstance,
+        ram: appConfig.ram
+      });
+
+      if (!result.success) {
+        alert(`No se pudo iniciar Minecraft: ${result.error}`);
+        launchBtn.disabled = false;
+        launchBtn.innerText = 'JUGAR';
+        hideProgressBar();
+      }
+    });
+
+    ipcRenderer.on('launch-status', (event, { state, message }) => {
+      if (state === 'downloading') {
+        setStatusLabel('Descargando Minecraft 1.20.1...');
+        launchProgressBar.classList.add('indeterminate');
+      } else if (state === 'launching') {
+        setStatusLabel('Iniciando Minecraft...');
+        launchProgressBar.classList.add('indeterminate');
+      } else if (state === 'closed' || state === 'error') {
+        launchBtn.disabled = false;
+        launchBtn.innerText = 'JUGAR';
+        hideProgressBar();
+      }
+      console.log('[launch-status]', state, message);
+    });
+
+    ipcRenderer.on('launch-progress', (event, { type, task, total }) => {
+      setStatusLabel(`Descargando Minecraft 1.20.1... (${type || 'archivos'})`);
+      if (total > 0) {
+        const percent = (task / total) * 100;
+        updateProgressBar(percent);
+      }
+    });
+
+    ipcRenderer.on('launch-log', (event, message) => {
+      console.log(message);
+
+      if (/launching with/i.test(message)) {
+        setStatusLabel('Iniciando Minecraft...');
+        launchProgressBar.classList.add('indeterminate');
+      }
+    });
+
+    const wardrobeLocked = document.getElementById('wardrobeLocked');
+    const wardrobeUnlocked = document.getElementById('wardrobeUnlocked');
+    const skinFileInput = document.getElementById('skinFileInput');
+    const applySkinBtn = document.getElementById('applySkinBtn');
+    const skinStatusMsg = document.getElementById('skinStatusMsg');
+    const refreshSkinBtn = document.getElementById('refreshSkinBtn');
+
+    let skinViewer = null;
+
+    function initSkinViewer() {
+      if (skinViewer) return skinViewer;
+
+      skinViewer = new skinview3d.SkinViewer({
+        canvas: document.getElementById('skinViewer3d'),
+        width: 300,
+        height: 360
+      });
+
+      skinViewer.background = 0x2a2a2a;
+      skinViewer.fov = 45;
+      skinViewer.zoom = 0.9;
+      skinViewer.controls.enableRotate = true;
+      skinViewer.controls.enableZoom = true;
+      skinViewer.controls.enablePan = false;
+
+      return skinViewer;
+    }
+
+    function getSelectedVariant() {
+      return document.querySelector('input[name="skinVariant"]:checked').value;
+    }
+
+    async function loadCurrentSkinFromMojang() {
+      if (!userSession || userSession.type !== 'microsoft') return;
+
+      try {
+        const info = await ipcRenderer.invoke('get-current-skin', userSession.uuid);
+        if (info && info.url) {
+          skinViewer.loadSkin(info.url, { model: info.model === 'slim' ? 'slim' : 'default' });
+          if (info.model === 'slim') {
+            document.querySelector('input[name="skinVariant"][value="slim"]').checked = true;
+          } else {
+            document.querySelector('input[name="skinVariant"][value="classic"]').checked = true;
+          }
+        }
+      } catch (err) {
+        console.error('No se pudo cargar la skin actual desde Mojang:', err);
+      }
+    }
+
+    function refreshFooterAvatar() {
+      if (!userSession || userSession.type !== 'microsoft') return;
+      const delays = [0, 2000, 4000, 7000];
+      delays.forEach((delay) => {
+        setTimeout(() => {
+          if (!userSession || userSession.type !== 'microsoft') return;
+          userAvatar.src = `https://mc-heads.net/avatar/${userSession.uuid}/40?t=${Date.now()}`;
+        }, delay);
+      });
+    }
+
+    const capesGrid = document.getElementById('capesGrid');
+    const capeStatusMsg = document.getElementById('capeStatusMsg');
+
+    function renderCapesGrid(capes) {
+      capesGrid.innerHTML = '';
+
+      const noneOption = document.createElement('div');
+      noneOption.className = 'cape-option' + (capes.every(c => !c.active) ? ' selected' : '');
+      noneOption.innerHTML = '<div class="cape-empty-icon">✕</div><span>Sin capa</span>';
+      noneOption.addEventListener('click', () => selectCape(null));
+      capesGrid.appendChild(noneOption);
+
+      capes.forEach((cape) => {
+        const option = document.createElement('div');
+        option.className = 'cape-option' + (cape.active ? ' selected' : '');
+        option.innerHTML = `<div class="cape-thumb" style="background-image: url('${cape.url}')" data-cape-url="${cape.url}"></div><span>${cape.alias}</span>`;
+        option.addEventListener('click', () => selectCape(cape.id, cape.url));
+        capesGrid.appendChild(option);
+      });
+
+      if (capes.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.className = 'ram-hint';
+        emptyMsg.style.gridColumn = '1 / -1';
+        emptyMsg.innerText = 'No tienes capas disponibles en tu cuenta.';
+        capesGrid.appendChild(emptyMsg);
+      }
+    }
+
+    async function loadCapes() {
+      if (!userSession || userSession.type !== 'microsoft') return;
+
+      const accessToken = userSession.mclcToken && userSession.mclcToken.access_token;
+      if (!accessToken) return;
+
+      capesGrid.innerHTML = '<p class="ram-hint">Cargando capas...</p>';
+
+      try {
+        const { capes } = await ipcRenderer.invoke('get-capes', accessToken);
+        renderCapesGrid(capes);
+
+        const active = capes.find(c => c.active);
+        if (skinViewer) {
+          if (active) {
+            skinViewer.loadCape(active.url);
+          } else {
+            skinViewer.loadCape(null);
+          }
+        }
+      } catch (err) {
+        console.error('No se pudieron cargar las capas:', err);
+        capesGrid.innerHTML = '<p class="ram-hint">No se pudieron cargar las capas.</p>';
+      }
+    }
+
+    let capeChangeInProgress = false;
+
+    async function selectCape(capeId, capeUrl) {
+      if (!userSession || userSession.type !== 'microsoft') return;
+      if (capeChangeInProgress) return;
+
+      const accessToken = userSession.mclcToken && userSession.mclcToken.access_token;
+      if (!accessToken) return;
+
+      capeChangeInProgress = true;
+      capesGrid.style.pointerEvents = 'none';
+      capesGrid.style.opacity = '0.6';
+      capeStatusMsg.innerText = 'Aplicando...';
+
+      const result = await ipcRenderer.invoke('set-active-cape', { accessToken, capeId });
+
+      capesGrid.style.pointerEvents = '';
+      capesGrid.style.opacity = '';
+      capeChangeInProgress = false;
+
+      if (!result.success) {
+        capeStatusMsg.innerText = result.error || 'No se pudo cambiar la capa.';
+        return;
+      }
+
+      capeStatusMsg.innerText = '';
+
+      document.querySelectorAll('.cape-option').forEach(opt => opt.classList.remove('selected'));
+      const clicked = Array.from(capesGrid.children).find(el =>
+        capeId ? el.querySelector('.cape-thumb')?.dataset.capeUrl === capeUrl : el.querySelector('.cape-empty-icon')
+      );
+      if (clicked) clicked.classList.add('selected');
+
+      if (skinViewer) {
+        skinViewer.loadCape(capeId ? capeUrl : null);
+      }
+    }
+
+    function updateWardrobeView() {
+      const isPremium = userSession && userSession.type === 'microsoft';
+
+      wardrobeLocked.style.display = isPremium ? 'none' : 'block';
+      wardrobeUnlocked.style.display = isPremium ? 'flex' : 'none';
+
+      if (isPremium) {
+        initSkinViewer();
+        loadCurrentSkinFromMojang();
+        loadCapes();
+      }
+    }
+
+    sidebarBtns.forEach(btn => {
+      if (btn.dataset.view === 'wardrobe') {
+        btn.addEventListener('click', updateWardrobeView);
+      }
+    });
+
+    if (refreshSkinBtn) {
+      refreshSkinBtn.addEventListener('click', () => {
+        loadCurrentSkinFromMojang();
+        loadCapes();
+        refreshFooterAvatar();
+      });
+    }
+
+    skinFileInput.addEventListener('change', () => {
+      const file = skinFileInput.files[0];
+      if (!file || !skinViewer) return;
+      const objectUrl = URL.createObjectURL(file);
+      skinViewer.loadSkin(objectUrl, { model: getSelectedVariant() === 'slim' ? 'slim' : 'default' });
+    });
+
+    document.querySelectorAll('input[name="skinVariant"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const file = skinFileInput.files[0];
+        if (!file || !skinViewer) return;
+        const objectUrl = URL.createObjectURL(file);
+        skinViewer.loadSkin(objectUrl, { model: getSelectedVariant() === 'slim' ? 'slim' : 'default' });
+      });
+    });
+
+    applySkinBtn.addEventListener('click', async () => {
+      if (!userSession || userSession.type !== 'microsoft') return;
+
+      const file = skinFileInput.files[0];
+      if (!file) {
+        skinStatusMsg.innerText = 'Selecciona un archivo PNG primero.';
+        return;
+      }
+
+      const variant = getSelectedVariant();
+
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+
+      img.onload = async () => {
+        const validDims = (img.naturalWidth === 64 && img.naturalHeight === 64) ||
+                           (img.naturalWidth === 64 && img.naturalHeight === 32);
+
+        if (!validDims) {
+          URL.revokeObjectURL(objectUrl);
+          skinStatusMsg.innerText = 'La imagen debe ser de 64x64 o 64x32 píxeles.';
+          return;
+        }
+
+        const accessToken = userSession.mclcToken && userSession.mclcToken.access_token;
+        if (!accessToken) {
+          URL.revokeObjectURL(objectUrl);
+          skinStatusMsg.innerText = 'No se encontró el token de sesión. Inicia sesión de nuevo.';
+          return;
+        }
+
+        applySkinBtn.disabled = true;
+        applySkinBtn.innerText = 'Aplicando...';
+        skinStatusMsg.innerText = '';
+
+        const result = await ipcRenderer.invoke('apply-skin', {
+          accessToken,
+          variant,
+          filePath: file.path
+        });
+
+        applySkinBtn.disabled = false;
+        applySkinBtn.innerText = 'Aplicar Skin';
+
+        if (!result.success) {
+          URL.revokeObjectURL(objectUrl);
+          skinStatusMsg.innerText = result.error || 'No se pudo aplicar la skin.';
+          return;
+        }
+
+        skinStatusMsg.innerText = '¡Skin aplicada correctamente!';
+
+        if (skinViewer) {
+          skinViewer.loadSkin(objectUrl, { model: variant === 'slim' ? 'slim' : 'default' });
+        }
+
+        refreshFooterAvatar();
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        skinStatusMsg.innerText = 'No se pudo leer la imagen seleccionada.';
+      };
+
+      img.src = objectUrl;
+    });
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyAzDBDJw8cuX9oNAi4htVQ5_UV_sDdJBfk',
+      authDomain: 'spyder-client.firebaseapp.com',
+      projectId: 'spyder-client',
+      storageBucket: 'spyder-client.firebasestorage.app',
+      messagingSenderId: '877352294186',
+      appId: '1:877352294186:web:4fa3f1f6c3a04123aeb053'
+    };
+
+    let db = null;
+    let socialInitialized = false;
+    let currentChatFriendUuid = null;
+    let chatUnsubscribe = null;
+    let outgoingPendingSet = new Set();
+    let friendsMap = new Map();
+
+    function initFirebase() {
+      if (db) return db;
+      try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+      } catch (err) {
+        console.error('No se pudo inicializar Firebase:', err);
+      }
+      return db;
+    }
+
+    function normalizeUuid(uuid) {
+      return (uuid || '').replace(/-/g, '').toLowerCase();
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    const socialLocked = document.getElementById('socialLocked');
+    const socialUnlocked = document.getElementById('socialUnlocked');
+    const friendSearchInput = document.getElementById('friendSearchInput');
+    const friendSearchBtn = document.getElementById('friendSearchBtn');
+    const friendSearchResults = document.getElementById('friendSearchResults');
+    const friendRequestsList = document.getElementById('friendRequestsList');
+    const friendsList = document.getElementById('friendsList');
+    const chatCard = document.getElementById('chatCard');
+    const chatEmptyState = document.getElementById('chatEmptyState');
+    const chatWithName = document.getElementById('chatWithName');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+
+    async function upsertSocialUser() {
+      if (!db || !userSession || userSession.type !== 'microsoft') return;
+      const myUuid = normalizeUuid(userSession.uuid);
+      try {
+        await db.collection('users').doc(myUuid).set({
+          username: userSession.name,
+          usernameLower: userSession.name.toLowerCase(),
+          lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      } catch (err) {
+        console.error('No se pudo registrar el usuario en Social:', err);
+      }
+    }
+
+    let notificationsInitialized = false;
+    let notificationListenerUnsubscribe = null;
+
+    if (window.Notification && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+
+    function setupGlobalMessageNotifications() {
+      if (notificationsInitialized || !db || !userSession) return;
+      notificationsInitialized = true;
+
+      const myUuid = normalizeUuid(userSession.uuid);
+      let isFirstSnapshot = true;
+
+      notificationListenerUnsubscribe = db.collectionGroup('messages')
+        .where('participants', 'array-contains', myUuid)
+        .onSnapshot((snapshot) => {
+          if (isFirstSnapshot) {
+            isFirstSnapshot = false;
+            return;
+          }
+
+          snapshot.docChanges().forEach((change) => {
+            if (change.type !== 'added') return;
+
+            const m = change.doc.data();
+            if (!m || m.senderUuid === myUuid) return;
+
+            const senderName = m.senderName || 'Alguien';
+            const isChattingWithSender = currentChatFriendUuid === m.senderUuid;
+            const socialTabOpen = document.getElementById('view-social')?.classList.contains('active');
+            const windowFocused = document.hasFocus();
+
+            if (isChattingWithSender && socialTabOpen && windowFocused) return;
+
+            if (window.Notification && Notification.permission === 'granted') {
+              const notification = new Notification(senderName, {
+                body: m.text || ''
+              });
+
+              notification.onclick = () => {
+                window.focus();
+                const updateBtn = document.querySelector('.sidebar-btn[data-view="social"]');
+                if (updateBtn) updateBtn.click();
+                openChat(m.senderUuid, senderName);
+              };
+            }
+          });
+        }, (err) => {
+          console.error('Error escuchando notificaciones globales de mensajes:', err);
+        });
+    }
+
+    function renderSearchResult(result) {
+      const myUuid = normalizeUuid(userSession.uuid);
+      const targetUuid = normalizeUuid(result.uuid);
+
+      let actionHtml;
+      if (targetUuid === myUuid) {
+        actionHtml = `<span class="ram-hint">Eres tú</span>`;
+      } else if (friendsMap.has(targetUuid)) {
+        actionHtml = `<span class="ram-hint">Ya son amigos</span>`;
+      } else if (outgoingPendingSet.has(targetUuid)) {
+        actionHtml = `<span class="ram-hint">Solicitud enviada</span>`;
+      } else {
+        actionHtml = `<button class="auth-btn offline-btn" data-send-uuid="${targetUuid}" data-send-name="${escapeHtml(result.name)}">Enviar solicitud</button>`;
+      }
+
+      friendSearchResults.innerHTML = `
+        <div class="search-result-item">
+          <div class="social-person">
+            <img src="https://mc-heads.net/avatar/${targetUuid}/32" alt="${escapeHtml(result.name)}">
+            <span>${escapeHtml(result.name)}</span>
+          </div>
+          <div class="social-actions">${actionHtml}</div>
+        </div>
+      `;
+
+      const sendBtn = friendSearchResults.querySelector('[data-send-uuid]');
+      if (sendBtn) {
+        sendBtn.addEventListener('click', () => {
+          sendFriendRequest(sendBtn.dataset.sendUuid, sendBtn.dataset.sendName);
+        });
+      }
+    }
+
+    async function searchPremiumUser() {
+      const username = friendSearchInput.value.trim();
+      if (!username) return;
+
+      friendSearchResults.innerHTML = '<p class="ram-hint">Buscando...</p>';
+
+      const result = await ipcRenderer.invoke('find-premium-user', username);
+
+      if (!result) {
+        friendSearchResults.innerHTML = '<p class="ram-hint">No se encontró ningún jugador premium con ese nombre.</p>';
+        return;
+      }
+
+      renderSearchResult(result);
+    }
+
+    friendSearchBtn.addEventListener('click', searchPremiumUser);
+    friendSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchPremiumUser();
+    });
+
+    async function sendFriendRequest(toUuid, toName) {
+      if (!db || !userSession) return;
+      const myUuid = normalizeUuid(userSession.uuid);
+      const targetUuid = normalizeUuid(toUuid);
+
+      try {
+        await db.collection('friendRequests').add({
+          fromUuid: myUuid,
+          fromName: userSession.name,
+          toUuid: targetUuid,
+          toName,
+          status: 'pending',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        searchPremiumUser();
+      } catch (err) {
+        console.error('No se pudo enviar la solicitud:', err);
+        alert('No se pudo enviar la solicitud de amistad.');
+      }
+    }
+
+    async function respondToRequest(reqId, accept, fromUuid, fromName) {
+      if (!db || !userSession) return;
+      const myUuid = normalizeUuid(userSession.uuid);
+
+      try {
+        await db.collection('friendRequests').doc(reqId).update({
+          status: accept ? 'accepted' : 'rejected'
+        });
+
+        if (accept) {
+          const pairId = [myUuid, fromUuid].sort().join('_');
+          await db.collection('friendships').doc(pairId).set({
+            users: [myUuid, fromUuid],
+            names: { [myUuid]: userSession.name, [fromUuid]: fromName },
+            since: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      } catch (err) {
+        console.error('No se pudo responder la solicitud:', err);
+      }
+    }
+
+    function renderFriendRequests(requests) {
+      if (requests.length === 0) {
+        friendRequestsList.innerHTML = '<p class="ram-hint">No tienes solicitudes pendientes.</p>';
+        return;
+      }
+
+      friendRequestsList.innerHTML = requests.map((req) => `
+        <div class="friend-request-item">
+          <div class="social-person">
+            <img src="https://mc-heads.net/avatar/${req.fromUuid}/32" alt="${escapeHtml(req.fromName)}">
+            <span>${escapeHtml(req.fromName)}</span>
+          </div>
+          <div class="social-actions">
+            <button class="auth-btn offline-btn" data-accept="${req.id}" data-from-uuid="${req.fromUuid}" data-from-name="${escapeHtml(req.fromName)}">Aceptar</button>
+            <button class="auth-btn" data-reject="${req.id}">Rechazar</button>
+          </div>
+        </div>
+      `).join('');
+
+      friendRequestsList.querySelectorAll('[data-accept]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          respondToRequest(btn.dataset.accept, true, btn.dataset.fromUuid, btn.dataset.fromName);
+        });
+      });
+      friendRequestsList.querySelectorAll('[data-reject]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          respondToRequest(btn.dataset.reject, false);
+        });
+      });
+    }
+
+    function renderFriendsList() {
+      if (friendsMap.size === 0) {
+        friendsList.innerHTML = '<p class="ram-hint">Aún no tienes amigos agregados.</p>';
+        return;
+      }
+
+      friendsList.innerHTML = Array.from(friendsMap.entries()).map(([uuid, name]) => `
+        <div class="friend-item">
+          <div class="social-person">
+            <img src="https://mc-heads.net/avatar/${uuid}/32" alt="${escapeHtml(name)}">
+            <span>${escapeHtml(name)}</span>
+          </div>
+          <div class="social-actions">
+            <button class="auth-btn offline-btn" data-chat-uuid="${uuid}" data-chat-name="${escapeHtml(name)}">Chatear</button>
+          </div>
+        </div>
+      `).join('');
+
+      friendsList.querySelectorAll('[data-chat-uuid]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          openChat(btn.dataset.chatUuid, btn.dataset.chatName);
+        });
+      });
+    }
+
+    function openChat(friendUuid, friendName) {
+      currentChatFriendUuid = friendUuid;
+      chatWithName.innerText = `Chat con ${friendName}`;
+      chatCard.style.display = 'flex';
+      chatEmptyState.style.display = 'none';
+
+      const myUuid = normalizeUuid(userSession.uuid);
+      const chatId = [myUuid, friendUuid].sort().join('_');
+
+      if (chatUnsubscribe) chatUnsubscribe();
+
+      chatUnsubscribe = db.collection('chats').doc(chatId).collection('messages')
+        .orderBy('timestamp', 'asc')
+        .onSnapshot((snapshot) => {
+          const myUuidNow = normalizeUuid(userSession.uuid);
+          chatMessages.innerHTML = snapshot.docs.map((doc) => {
+            const m = doc.data();
+            const mine = m.senderUuid === myUuidNow;
+            return `<div class="chat-bubble ${mine ? 'mine' : 'theirs'}">${escapeHtml(m.text || '')}</div>`;
+          }).join('');
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, (err) => {
+          console.error('Error escuchando el chat:', err);
+        });
+    }
+
+    function closeChat() {
+      currentChatFriendUuid = null;
+      if (chatUnsubscribe) {
+        chatUnsubscribe();
+        chatUnsubscribe = null;
+      }
+      chatCard.style.display = 'none';
+      chatEmptyState.style.display = 'block';
+      chatMessages.innerHTML = '';
+    }
+
+    const chatCloseBtn = document.getElementById('chatCloseBtn');
+    if (chatCloseBtn) {
+      chatCloseBtn.addEventListener('click', closeChat);
+    }
+
+    function sendChatMessage() {
+      const text = chatInput.value.trim();
+      if (!text || !currentChatFriendUuid || !db) return;
+
+      const myUuid = normalizeUuid(userSession.uuid);
+      const chatId = [myUuid, currentChatFriendUuid].sort().join('_');
+
+      db.collection('chats').doc(chatId).collection('messages').add({
+        senderUuid: myUuid,
+        senderName: userSession.name,
+        text,
+        participants: [myUuid, currentChatFriendUuid],
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }).catch((err) => console.error('No se pudo enviar el mensaje:', err));
+
+      chatInput.value = '';
+    }
+
+    chatSendBtn.addEventListener('click', sendChatMessage);
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendChatMessage();
+    });
+
+    function setupSocialListeners() {
+      if (socialInitialized || !db || !userSession) return;
+      socialInitialized = true;
+
+      const myUuid = normalizeUuid(userSession.uuid);
+
+      db.collection('friendRequests')
+        .where('toUuid', '==', myUuid)
+        .where('status', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          const requests = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          renderFriendRequests(requests);
+        }, (err) => console.error('Error escuchando solicitudes:', err));
+
+      db.collection('friendRequests')
+        .where('fromUuid', '==', myUuid)
+        .where('status', '==', 'pending')
+        .onSnapshot((snapshot) => {
+          outgoingPendingSet = new Set(snapshot.docs.map((doc) => doc.data().toUuid));
+        }, (err) => console.error('Error escuchando solicitudes enviadas:', err));
+
+      db.collection('friendships')
+        .where('users', 'array-contains', myUuid)
+        .onSnapshot((snapshot) => {
+          friendsMap = new Map();
+          snapshot.docs.forEach((doc) => {
+            const data = doc.data();
+            const otherUuid = data.users.find((u) => u !== myUuid);
+            if (otherUuid) {
+              friendsMap.set(otherUuid, data.names?.[otherUuid] || 'Jugador');
+            }
+          });
+          renderFriendsList();
+        }, (err) => console.error('Error escuchando amigos:', err));
+    }
+
+    function updateSocialView() {
+      const isPremium = userSession && userSession.type === 'microsoft';
+
+      socialLocked.style.display = isPremium ? 'none' : 'block';
+      socialUnlocked.style.display = isPremium ? 'block' : 'none';
+
+      if (isPremium) {
+        initFirebase();
+        upsertSocialUser();
+        setupSocialListeners();
+      }
+    }
+
+    sidebarBtns.forEach(btn => {
+      if (btn.dataset.view === 'social') {
+        btn.addEventListener('click', updateSocialView);
+      }
+    });
+
+    async function restoreSession() {
+      try {
+        const msResult = await ipcRenderer.invoke('restore-microsoft-session');
+        if (msResult && msResult.success) {
+          applyMicrosoftSession(msResult.user);
+          return;
+        }
+      } catch (err) {
+        console.error('No se pudo restaurar la sesión de Microsoft:', err);
+      }
+
+      if (appConfig.offlineUser) {
+        applyOfflineSession(appConfig.offlineUser);
+      }
+    }
+
+    restoreSession();
+  </script>
+</body>
+</html>
