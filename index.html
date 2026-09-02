@@ -1001,6 +1001,33 @@
       white-space: nowrap;
     }
 
+    #updateBanner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 10px 20px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-medium);
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    #updateBanner.visible {
+      display: flex;
+    }
+
+    #updateBannerBtn {
+      background: var(--accent-bg);
+      color: var(--accent-text);
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
     .version-tag {
       color: var(--text-muted);
       font-size: 0.9rem;
@@ -1011,7 +1038,7 @@
 
   <header>
     <div class="logo"><img id="headerLogoImg" src="assets/aranasinfondo.png" alt="Falcom logo"><span class="logo-text"><span class="logo-bold">Spyder</span> <span class="logo-thin">CLIENT</span></span></div>
-    <span class="version-tag">v1.0.7</span>
+    <span class="version-tag">v1.0.8</span>
   </header>
 
   <div class="main-layout">
@@ -1282,6 +1309,11 @@
       <div id="launchProgressMask"></div>
       <span id="launchProgressText"></span>
     </div>
+  </div>
+
+  <div id="updateBanner">
+    <span id="updateBannerText"></span>
+    <button id="updateBannerBtn" style="display: none;">Instalar y reiniciar</button>
   </div>
 
   <script src="node_modules/skinview3d/bundles/skinview3d.bundle.js"></script>
@@ -2388,6 +2420,37 @@
         applyOfflineSession(appConfig.offlineUser);
       }
     }
+
+    const updateBanner = document.getElementById('updateBanner');
+    const updateBannerText = document.getElementById('updateBannerText');
+    const updateBannerBtn = document.getElementById('updateBannerBtn');
+
+    ipcRenderer.on('update-status', (event, { state, version, message }) => {
+      if (state === 'checking') {
+        console.log('Buscando actualizaciones...');
+      } else if (state === 'available') {
+        updateBanner.classList.add('visible');
+        updateBannerText.innerText = `Descargando actualización v${version}...`;
+        updateBannerBtn.style.display = 'none';
+      } else if (state === 'not-available') {
+        updateBanner.classList.remove('visible');
+      } else if (state === 'downloaded') {
+        updateBanner.classList.add('visible');
+        updateBannerText.innerText = `¡Actualización v${version} lista!`;
+        updateBannerBtn.style.display = 'inline-block';
+      } else if (state === 'error') {
+        console.error('Error de actualización:', message);
+      }
+    });
+
+    ipcRenderer.on('update-progress', (event, progress) => {
+      updateBanner.classList.add('visible');
+      updateBannerText.innerText = `Descargando actualización... ${Math.round(progress.percent)}%`;
+    });
+
+    updateBannerBtn.addEventListener('click', () => {
+      ipcRenderer.invoke('install-update-now');
+    });
 
     restoreSession();
   </script>

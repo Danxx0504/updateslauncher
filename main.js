@@ -7,6 +7,7 @@ const { promisify } = require('util');
 const { Auth } = require('msmc');
 const { Client, Authenticator } = require('minecraft-launcher-core');
 const { Client: DiscordRPCClient } = require('@xhayper/discord-rpc');
+const { autoUpdater } = require('electron-updater');
 
 const execAsync = promisify(exec);
 
@@ -477,12 +478,57 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram }) => {
   }
 });
 
+function setupAutoUpdater() {
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('checking-for-update', () => {
+    console.log('[autoUpdater] Buscando actualizaciones...');
+    mainWindow?.webContents.send('update-status', { state: 'checking' });
+  });
+
+  autoUpdater.on('update-available', (info) => {
+    console.log('[autoUpdater] Actualización disponible:', info.version);
+    mainWindow?.webContents.send('update-status', { state: 'available', version: info.version });
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    console.log('[autoUpdater] No hay actualizaciones nuevas.');
+    mainWindow?.webContents.send('update-status', { state: 'not-available' });
+  });
+
+  autoUpdater.on('error', (err) => {
+    console.error('[autoUpdater] Error al buscar/descargar actualización:', err);
+    mainWindow?.webContents.send('update-status', { state: 'error', message: err.message });
+  });
+
+  autoUpdater.on('download-progress', (progress) => {
+    mainWindow?.webContents.send('update-progress', progress);
+  });
+
+  autoUpdater.on('update-downloaded', (info) => {
+    console.log('[autoUpdater] Actualización descargada:', info.version);
+    mainWindow?.webContents.send('update-status', { state: 'downloaded', version: info.version });
+  });
+
+  ipcMain.handle('check-for-updates', () => {
+    autoUpdater.checkForUpdates().catch((err) => console.error('Error al buscar actualizaciones:', err));
+  });
+
+  ipcMain.handle('install-update-now', () => {
+    autoUpdater.quitAndInstall();
+  });
+
+  autoUpdater.checkForUpdates().catch((err) => console.error('Error al buscar actualizaciones:', err));
+}
+
 app.whenReady().then(() => {
   if (!fs.existsSync(FALCOM_DIR)) {
     fs.mkdirSync(FALCOM_DIR, { recursive: true });
   }
 
   createWindow();
+  setupAutoUpdater();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
