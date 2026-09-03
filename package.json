@@ -1,6 +1,6 @@
 {
   "name": "spyder-client",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Launcher Oficial de Spyder Studios",
   "main": "main.js",
   "author": "Spyder Studios",
@@ -47,6 +47,13 @@
       "owner": "Danxx0504",
       "repo": "updateslauncher",
       "releaseType": "release"
+    }
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "electron#31.7.7": true,
+      "firebase>@firebase/firestore>@grpc/proto-loader>protobufjs#7.6.6": false,
+      "firebase>@firebase/util#1.15.3": false
     }
   }
 }
