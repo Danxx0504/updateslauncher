@@ -1,6 +1,6 @@
 {
   "name": "spyder-client",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Launcher Oficial de Spyder Studios",
   "main": "main.js",
   "author": "Spyder Studios",
@@ -26,12 +26,13 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.falcomstudio.falcomclient",
+    "appId": "com.spyderstudios.spyderclient",
     "productName": "Spyder Client",
     "asar": true,
     "files": [
       "main.js",
       "index.html",
+      "splash.html",
       "assets/**/*"
     ],
     "win": {
@@ -55,5 +56,10 @@
       "firebase>@firebase/firestore>@grpc/proto-loader>protobufjs#7.6.6": false,
       "firebase>@firebase/util#1.15.3": false
     }
+  },
+  "allowScripts": {
+    "@firebase/util@1.15.3": true,
+    "electron@31.7.7": true,
+    "protobufjs@7.6.6": true
   }
 }

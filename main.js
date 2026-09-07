@@ -60,7 +60,37 @@ ipcMain.handle('update-discord-presence', (event, { details, state }) => {
 });
 
 let mainWindow;
+let splashWindow;
 let gameIsRunning = false;
+
+let splashStartTime = 0;
+
+function createSplashWindow() {
+  splashStartTime = Date.now();
+  splashWindow = new BrowserWindow({
+    width: 360,
+    height: 340,
+    frame: false,
+    resizable: false,
+    movable: true,
+    transparent: true,
+    alwaysOnTop: true,
+    center: true,
+    skipTaskbar: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  splashWindow.loadFile('splash.html');
+}
+
+function setSplashStatus(text) {
+  if (splashWindow && !splashWindow.isDestroyed()) {
+    splashWindow.webContents.send('splash-status', text);
+  }
+}
 
 mcLauncher.on('debug', (e) => {
   mainWindow?.webContents.send('launch-log', `[DEBUG] ${e}`);
@@ -98,8 +128,18 @@ function createWindow() {
   });
 
   mainWindow.once('ready-to-show', () => {
-    mainWindow.maximize();
-    mainWindow.show();
+    const MIN_SPLASH_MS = 1800;
+    const elapsed = Date.now() - splashStartTime;
+    const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
+
+    setTimeout(() => {
+      if (splashWindow && !splashWindow.isDestroyed()) {
+        splashWindow.close();
+        splashWindow = null;
+      }
+      mainWindow.maximize();
+      mainWindow.show();
+    }, remaining);
   });
 
   mainWindow.loadFile('index.html');
@@ -484,21 +524,25 @@ function setupAutoUpdater() {
 
   autoUpdater.on('checking-for-update', () => {
     console.log('[autoUpdater] Buscando actualizaciones...');
+    setSplashStatus('Buscando actualizaciones...');
     mainWindow?.webContents.send('update-status', { state: 'checking' });
   });
 
   autoUpdater.on('update-available', (info) => {
     console.log('[autoUpdater] Actualización disponible:', info.version);
+    setSplashStatus(`Descargando actualización v${info.version}...`);
     mainWindow?.webContents.send('update-status', { state: 'available', version: info.version });
   });
 
   autoUpdater.on('update-not-available', () => {
     console.log('[autoUpdater] No hay actualizaciones nuevas.');
+    setSplashStatus('Iniciando launcher...');
     mainWindow?.webContents.send('update-status', { state: 'not-available' });
   });
 
   autoUpdater.on('error', (err) => {
     console.error('[autoUpdater] Error al buscar/descargar actualización:', err);
+    setSplashStatus('Iniciando launcher...');
     mainWindow?.webContents.send('update-status', { state: 'error', message: err.message });
   });
 
@@ -527,6 +571,7 @@ app.whenReady().then(() => {
     fs.mkdirSync(FALCOM_DIR, { recursive: true });
   }
 
+  createSplashWindow();
   createWindow();
   setupAutoUpdater();
 
