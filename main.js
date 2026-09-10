@@ -69,7 +69,7 @@ function createSplashWindow() {
   splashStartTime = Date.now();
   splashWindow = new BrowserWindow({
     width: 360,
-    height: 340,
+    height: 460,
     frame: false,
     resizable: false,
     movable: true,
@@ -113,6 +113,37 @@ mcLauncher.on('close', (code) => {
   });
 });
 
+const MIN_SPLASH_MS = 1800;
+const UPDATE_CHECK_TIMEOUT_MS = 12000; // seguridad por si no hay red o el servidor no responde
+
+let mainWindowReady = false;
+let updateCheckSettled = false;
+let splashClosed = false;
+
+function settleUpdateCheck() {
+  if (updateCheckSettled) return;
+  updateCheckSettled = true;
+  tryFinishSplash();
+}
+
+function tryFinishSplash() {
+  if (splashClosed) return;
+  if (!mainWindowReady || !updateCheckSettled) return;
+
+  const elapsed = Date.now() - splashStartTime;
+  const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
+
+  setTimeout(() => {
+    splashClosed = true;
+    if (splashWindow && !splashWindow.isDestroyed()) {
+      splashWindow.close();
+      splashWindow = null;
+    }
+    mainWindow.maximize();
+    mainWindow.show();
+  }, remaining);
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 950,
@@ -128,21 +159,15 @@ function createWindow() {
   });
 
   mainWindow.once('ready-to-show', () => {
-    const MIN_SPLASH_MS = 1800;
-    const elapsed = Date.now() - splashStartTime;
-    const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
-
-    setTimeout(() => {
-      if (splashWindow && !splashWindow.isDestroyed()) {
-        splashWindow.close();
-        splashWindow = null;
-      }
-      mainWindow.maximize();
-      mainWindow.show();
-    }, remaining);
+    mainWindowReady = true;
+    tryFinishSplash();
   });
 
   mainWindow.loadFile('index.html');
+
+  // Si por lo que sea la comprobación de actualización nunca resuelve
+  // (sin internet, servidor caído, etc.), no dejamos al usuario colgado en el splash.
+  setTimeout(settleUpdateCheck, UPDATE_CHECK_TIMEOUT_MS);
 }
 
 ipcMain.handle('msmc-login', async () => {
@@ -538,12 +563,14 @@ function setupAutoUpdater() {
     console.log('[autoUpdater] No hay actualizaciones nuevas.');
     setSplashStatus('Iniciando launcher...');
     mainWindow?.webContents.send('update-status', { state: 'not-available' });
+    settleUpdateCheck();
   });
 
   autoUpdater.on('error', (err) => {
     console.error('[autoUpdater] Error al buscar/descargar actualización:', err);
     setSplashStatus('Iniciando launcher...');
     mainWindow?.webContents.send('update-status', { state: 'error', message: err.message });
+    settleUpdateCheck();
   });
 
   autoUpdater.on('download-progress', (progress) => {
@@ -552,7 +579,9 @@ function setupAutoUpdater() {
 
   autoUpdater.on('update-downloaded', (info) => {
     console.log('[autoUpdater] Actualización descargada:', info.version);
+    setSplashStatus('Actualización lista, iniciando...');
     mainWindow?.webContents.send('update-status', { state: 'downloaded', version: info.version });
+    settleUpdateCheck();
   });
 
   ipcMain.handle('check-for-updates', () => {
