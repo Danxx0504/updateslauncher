@@ -589,7 +589,7 @@ function setupAutoUpdater() {
   });
 
   ipcMain.handle('install-update-now', () => {
-    autoUpdater.quitAndInstall();
+    autoUpdater.quitAndInstall(true, true);
   });
 
   autoUpdater.checkForUpdates().catch((err) => console.error('Error al buscar actualizaciones:', err));
