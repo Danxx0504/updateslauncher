@@ -112,6 +112,16 @@ mcLauncher.on('close', (code) => {
     state: 'Explorando Spyder Client'
   });
 });
+mcLauncher.on('error', (err) => {
+  console.error('[mcLauncher] Error al lanzar Minecraft:', err);
+  gameIsRunning = false;
+  mainWindow?.webContents.send('launch-status', {
+    state: 'error',
+    message: err?.message?.includes('ENOENT')
+      ? 'No se encontró Java en este equipo. Instala Java (17 o superior) e inténtalo de nuevo.'
+      : `Error al lanzar Minecraft: ${err?.message || err}`
+  });
+});
 
 const MIN_SPLASH_MS = 1800;
 const UPDATE_CHECK_TIMEOUT_MS = 12000; // seguridad por si no hay red o el servidor no responde
@@ -474,12 +484,28 @@ ipcMain.handle('set-active-cape', async (event, { accessToken, capeId }) => {
   }
 });
 
+async function checkJavaInstalled() {
+  try {
+    await execAsync('java -version');
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 ipcMain.handle('launch-game', async (event, { userSession, instance, ram }) => {
   if (gameIsRunning) {
     return { success: false, error: 'Minecraft ya se está ejecutando.' };
   }
   if (!userSession) {
     return { success: false, error: 'No hay sesión activa.' };
+  }
+
+  const hasJava = await checkJavaInstalled();
+  if (!hasJava) {
+    const message = 'No se encontró Java en este equipo. Instala Java (17 o superior) desde https://www.java.com/es/download/ e inténtalo de nuevo.';
+    mainWindow?.webContents.send('launch-status', { state: 'error', message });
+    return { success: false, error: message };
   }
 
   try {
