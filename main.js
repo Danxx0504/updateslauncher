@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
@@ -11,8 +11,22 @@ const { autoUpdater } = require('electron-updater');
 
 const execAsync = promisify(exec);
 
-const FALCOM_DIR = path.join(process.env.APPDATA, '.falcom-client');
+const FALCOM_DIR = path.join(process.env.APPDATA, '.spyderclient');
+const LEGACY_FALCOM_DIR = path.join(process.env.APPDATA, '.falcom-client');
 const MS_AUTH_CACHE_PATH = path.join(FALCOM_DIR, 'ms-auth-cache.json');
+
+function migrateLegacyDataFolder() {
+  try {
+    if (!fs.existsSync(FALCOM_DIR) && fs.existsSync(LEGACY_FALCOM_DIR)) {
+      fs.renameSync(LEGACY_FALCOM_DIR, FALCOM_DIR);
+      console.log('Datos migrados de .falcom-client a .spyderclient');
+    }
+  } catch (err) {
+    console.error('No se pudo migrar la carpeta de datos anterior:', err);
+  }
+}
+
+migrateLegacyDataFolder();
 
 const mcLauncher = new Client();
 
@@ -124,7 +138,7 @@ mcLauncher.on('error', (err) => {
 });
 
 const MIN_SPLASH_MS = 1800;
-const UPDATE_CHECK_TIMEOUT_MS = 12000; // seguridad por si no hay red o el servidor no responde
+const UPDATE_CHECK_TIMEOUT_MS = 12000;
 
 let mainWindowReady = false;
 let updateCheckSettled = false;
@@ -175,8 +189,6 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
 
-  // Si por lo que sea la comprobación de actualización nunca resuelve
-  // (sin internet, servidor caído, etc.), no dejamos al usuario colgado en el splash.
   setTimeout(settleUpdateCheck, UPDATE_CHECK_TIMEOUT_MS);
 }
 
@@ -314,6 +326,7 @@ async function getDiskSpace() {
       const data = JSON.parse(stdout);
       if (data && data.Size && data.FreeSpace) {
         return {
+          drive,
           total: Math.round((Number(data.Size) / 1024 ** 3) * 10) / 10,
           free: Math.round((Number(data.FreeSpace) / 1024 ** 3) * 10) / 10
         };
@@ -325,6 +338,7 @@ async function getDiskSpace() {
       const totalKB = Number(parts[1]);
       const freeKB = Number(parts[3]);
       return {
+        drive: '/',
         total: Math.round((totalKB / 1024 ** 2) * 10) / 10,
         free: Math.round((freeKB / 1024 ** 2) * 10) / 10
       };
@@ -338,6 +352,10 @@ async function getDiskSpace() {
 ipcMain.handle('get-hardware-info', async () => {
   const [gpu, disk] = await Promise.all([getGpuName(), getDiskSpace()]);
   return { gpu, disk };
+});
+
+ipcMain.handle('open-folder', (event, folderPath) => {
+  shell.openPath(folderPath);
 });
 
 ipcMain.handle('apply-skin', async (event, { accessToken, variant, filePath }) => {
@@ -492,6 +510,14 @@ async function checkJavaInstalled() {
     return false;
   }
 }
+
+ipcMain.handle('check-java-installed', async () => {
+  return checkJavaInstalled();
+});
+
+ipcMain.handle('open-java-download', () => {
+  shell.openExternal('https://www.java.com/es/download/');
+});
 
 ipcMain.handle('launch-game', async (event, { userSession, instance, ram }) => {
   if (gameIsRunning) {

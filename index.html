@@ -389,14 +389,20 @@
       width: 100vw;
       height: 100vh;
       background: rgba(0, 0, 0, 0.7);
-      display: none;
+      display: flex;
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
     }
 
     .modal-overlay.active {
-      display: flex;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
     }
 
     .modal-card {
@@ -409,6 +415,14 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
+      transform: translateY(10px) scale(0.97);
+      opacity: 0;
+      transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.18s ease;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: translateY(0) scale(1);
+      opacity: 1;
     }
 
     .modal-card h3 {
@@ -428,6 +442,18 @@
 
     .modal-input:focus {
       border-color: var(--text-primary);
+    }
+
+    .modal-error {
+      color: #ff6b6b;
+      font-size: 0.8rem;
+      margin-top: -8px;
+    }
+
+    .modal-success {
+      color: #4ade80;
+      font-size: 0.8rem;
+      margin-top: -8px;
     }
 
     .modal-actions {
@@ -668,6 +694,151 @@
       line-height: 1.4;
     }
 
+    .config-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .config-panel-header h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .config-panel-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .config-panel-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .config-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+
+    .ram-optimal-btn {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      color: #4ade80;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .ram-optimal-btn:hover {
+      background: rgba(74, 222, 128, 0.22);
+    }
+
+    .ram-optimal-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .ram-slider-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .ram-slider-labels .ram-edge-label {
+      font-size: 0.75rem;
+      color: var(--text-faint);
+    }
+
+    .ram-slider-labels .ram-big-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #f5a623;
+    }
+
+    #ramSliderBig {
+      width: 100%;
+      accent-color: #f5a623;
+      margin-bottom: 20px;
+    }
+
+    .ram-exact-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .ram-exact-input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .ram-exact-input-group input {
+      width: 90px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+    }
+
+    .ram-presets {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ram-preset-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ram-preset-btn:hover {
+      border-color: var(--text-primary);
+      color: var(--text-primary);
+    }
+
+    .ram-preset-btn.active {
+      background: #f5a623;
+      border-color: #f5a623;
+      color: #1a1200;
+    }
+
     .placeholder-card {
       background: var(--bg-card);
       border: 1px solid var(--border-medium);
@@ -679,6 +850,653 @@
 
     .placeholder-card h2 {
       margin-bottom: 8px;
+    }
+
+    .storage-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .storage-summary strong {
+      color: var(--text-primary);
+    }
+
+    .instance-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+
+    .instance-card-info h4 {
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .instance-card-info span {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+    }
+
+    .instance-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .instance-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+
+    .instance-delete-btn {
+      background: rgba(255, 107, 107, 0.1);
+      border: 1px solid rgba(255, 107, 107, 0.35);
+      color: #ff6b6b;
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .instance-delete-btn:hover {
+      background: rgba(255, 107, 107, 0.2);
+    }
+
+    .storage-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .storage-header-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #22c55e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .storage-header-icon svg {
+      width: 22px;
+      height: 22px;
+      color: #06210f;
+    }
+
+    .storage-header h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .storage-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      margin-top: 2px;
+    }
+
+    .storage-top-row {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .disk-main-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .disk-donut {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: conic-gradient(#f97316 calc(var(--pct, 0) * 1%), var(--bg-input) 0);
+    }
+
+    .disk-donut-inner {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .disk-donut-percent {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.1;
+    }
+
+    .disk-donut-label {
+      font-size: 0.62rem;
+      color: var(--text-faint);
+      letter-spacing: 0.5px;
+    }
+
+    .disk-main-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .disk-main-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .disk-main-title svg {
+      width: 16px;
+      height: 16px;
+      color: #f97316;
+    }
+
+    .disk-drive-pill {
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      width: fit-content;
+    }
+
+    .disk-main-sizes {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .disk-used {
+      color: #f97316;
+    }
+
+    .disk-of {
+      color: var(--text-faint);
+      font-weight: 400;
+      font-size: 0.85rem;
+      margin: 0 4px;
+    }
+
+    .disk-total {
+      color: var(--text-primary);
+    }
+
+    .disk-free-line {
+      font-size: 0.78rem;
+      color: #4ade80;
+    }
+
+    .storage-stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .storage-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .storage-stat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .storage-stat-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .storage-stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+    .storage-stat-icon.green { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+    .storage-stat-icon.orange { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+    .storage-stat-icon.purple { background: rgba(129, 140, 248, 0.15); color: #818cf8; }
+
+    .storage-stat-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .storage-stat-label {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+      letter-spacing: 0.5px;
+    }
+
+    .storage-distribution-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+
+    .storage-distribution-card h4 {
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      color: var(--text-faint);
+      margin-bottom: 14px;
+    }
+
+    .distribution-bar {
+      display: flex;
+      width: 100%;
+      height: 10px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--bg-input);
+      margin-bottom: 14px;
+    }
+
+    .distribution-segment {
+      height: 100%;
+    }
+
+    .distribution-segment.launcher { background: #3b82f6; }
+    .distribution-segment.instances { background: #4ade80; }
+    .distribution-segment.other { background: #f97316; }
+    .distribution-segment.free { background: var(--bg-input); }
+
+    .distribution-legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .distribution-legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .legend-dot.launcher { background: #3b82f6; }
+    .legend-dot.instances { background: #4ade80; }
+    .legend-dot.other { background: #f97316; }
+    .legend-dot.free { background: var(--border-strong); }
+
+    .storage-instances-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .storage-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 12px;
+      padding: 18px 20px;
+      min-height: 260px;
+    }
+
+    .storage-panel h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      color: var(--text-faint);
+      margin-bottom: 16px;
+    }
+
+    .storage-panel h4 svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .storage-empty-inline {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text-faint);
+      padding: 50px 10px;
+      gap: 10px;
+    }
+
+    .storage-empty-inline svg {
+      width: 34px;
+      height: 34px;
+      opacity: 0.5;
+    }
+
+    .instance-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .instance-row:hover {
+      background: var(--bg-input);
+    }
+
+    .instance-row.selected-row {
+      background: var(--bg-input);
+      border-color: var(--border-strong);
+    }
+
+    .instance-row-info h4 {
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      margin: 0 0 3px 0;
+      letter-spacing: normal;
+    }
+
+    .instance-row-info span {
+      font-size: 0.75rem;
+      color: var(--text-faint);
+    }
+
+    .storage-detail-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100%;
+      min-height: 220px;
+      color: var(--text-faint);
+      gap: 8px;
+    }
+
+    .storage-detail-empty svg {
+      width: 34px;
+      height: 34px;
+      opacity: 0.5;
+      margin-bottom: 6px;
+    }
+
+    .storage-detail-empty h4 {
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .storage-detail-empty p {
+      font-size: 0.8rem;
+      max-width: 220px;
+    }
+
+    .storage-detail-filled h3 {
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .storage-detail-filled .detail-size {
+      font-size: 0.85rem;
+      color: var(--text-faint);
+      margin-bottom: 18px;
+    }
+
+    .storage-detail-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .detail-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .detail-action-btn:hover {
+      border-color: var(--text-primary);
+    }
+
+    .detail-action-btn.danger {
+      color: #ff6b6b;
+      border-color: rgba(255, 107, 107, 0.35);
+      background: rgba(255, 107, 107, 0.08);
+    }
+
+    .detail-action-btn.danger:hover {
+      background: rgba(255, 107, 107, 0.18);
+    }
+
+    .detail-action-btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .home-section-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .instance-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .instance-tile {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .instance-tile:hover {
+      border-color: var(--text-primary);
+      transform: translateY(-2px);
+    }
+
+    .instance-tile-image {
+      width: 100%;
+      height: 170px;
+      background-size: cover;
+      background-position: center;
+      background-color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .instance-tile-image svg {
+      width: 52px;
+      height: 52px;
+      opacity: 0.3;
+    }
+
+    .instance-tile-active-tag {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #4ade80;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+      border-radius: 6px;
+      padding: 4px 9px;
+    }
+
+    .instance-tile-body {
+      padding: 18px 20px 20px;
+    }
+
+    .instance-tile-body h4 {
+      font-size: 1.05rem;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .instance-tile-body p {
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .instance-tile-add {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-style: dashed;
+      color: var(--text-faint);
+      padding: 30px 16px;
+      gap: 8px;
+      min-height: 165px;
+    }
+
+    .instance-tile-add:hover {
+      color: var(--text-primary);
+    }
+
+    .instance-tile-add svg {
+      width: 26px;
+      height: 26px;
+    }
+
+    .instance-detail-modal-card {
+      width: 420px;
+      max-width: 90vw;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .instance-detail-banner {
+      width: 100%;
+      height: 170px;
+      background-size: cover;
+      background-position: center;
+      background-color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .instance-detail-banner svg {
+      width: 52px;
+      height: 52px;
+      opacity: 0.3;
+    }
+
+    .instance-detail-modal-body {
+      padding: 20px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .instance-detail-modal-body h3 {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+
+    .instance-detail-modal-body p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .home-empty-state {
+      color: var(--text-faint);
+      font-size: 0.9rem;
+    }
+
+    .selected-instance-label {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .selected-instance-label strong {
+      color: var(--text-primary);
     }
 
     .social-search-row {
@@ -843,51 +1661,189 @@
       flex: 1;
     }
 
+    .changelog-timeline {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .changelog-entry {
+      display: flex;
+      gap: 16px;
+    }
+
+    .changelog-track {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 14px;
+      flex-shrink: 0;
+    }
+
+    .changelog-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border-strong);
+      margin-top: 26px;
+      flex-shrink: 0;
+    }
+
+    .changelog-entry.latest .changelog-dot {
+      background: #4ade80;
+      box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.18);
+    }
+
+    .changelog-track-line {
+      flex: 1;
+      width: 2px;
+      background: var(--border-medium);
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .changelog-entry:last-child .changelog-track-line {
+      display: none;
+    }
+
     .changelog-card {
+      flex: 1;
       background: var(--bg-card);
       border: 1px solid var(--border-medium);
       border-radius: 12px;
-      padding: 18px 20px;
+      overflow: hidden;
       margin-bottom: 16px;
+    }
+
+    .changelog-card.latest {
+      border-color: rgba(74, 222, 128, 0.4);
     }
 
     .changelog-card-header {
       display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 10px;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 20px;
+      cursor: pointer;
     }
 
-    .changelog-version {
-      font-size: 1rem;
-      font-weight: 700;
+    .changelog-version-title {
+      font-size: 1.05rem;
+      font-weight: 800;
       color: var(--text-primary);
     }
 
-    .changelog-date {
-      font-size: 0.75rem;
-      color: var(--text-faint);
+    .changelog-badge-latest {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      border-radius: 6px;
+      padding: 3px 8px;
     }
 
-    .changelog-list {
+    .changelog-date-chip {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      white-space: nowrap;
+    }
+
+    .changelog-date-chip svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .changelog-chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--text-faint);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .changelog-card.expanded .changelog-chevron {
+      transform: rotate(180deg);
+    }
+
+    .changelog-card-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease;
+      padding: 0 20px;
+    }
+
+    .changelog-card.expanded .changelog-card-body {
+      padding-bottom: 20px;
+    }
+
+    .changelog-section {
+      margin-bottom: 16px;
+    }
+
+    .changelog-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .changelog-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 4px 10px;
+      margin-bottom: 10px;
+    }
+
+    .changelog-pill svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .changelog-pill.added {
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.3);
+    }
+
+    .changelog-pill.improved {
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    .changelog-pill.fixed {
+      color: #ff6b6b;
+      background: rgba(255, 107, 107, 0.12);
+      border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+
+    .changelog-section ul {
       list-style: none;
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .changelog-list li {
+    .changelog-section li {
       font-size: 0.85rem;
       color: var(--text-secondary);
       padding-left: 16px;
       position: relative;
     }
 
-    .changelog-list li::before {
-      content: '•';
+    .changelog-section li::before {
+      content: '›';
       position: absolute;
       left: 0;
       color: var(--text-faint);
+      font-weight: 700;
     }
 
     .skin-preview-card {
@@ -1038,7 +1994,7 @@
 
   <header>
     <div class="logo"><img id="headerLogoImg" src="assets/aranasinfondo.png" alt="Falcom logo"><span class="logo-text"><span class="logo-bold">Spyder</span> <span class="logo-thin">CLIENT</span></span></div>
-    <span class="version-tag">v1.1.14</span>
+    <span class="version-tag">v1.1.15</span>
   </header>
 
   <div class="main-layout">
@@ -1073,35 +2029,88 @@
 
     <div class="content-area">
       <div class="view active" id="view-inicio">
-        <div class="container">
+        <div class="view-inner-wide">
+          <h2 class="home-section-title">Tus Instancias</h2>
+          <div class="instance-cards-grid" id="instanceCardsGrid"></div>
         </div>
       </div>
 
       <div class="view" id="view-config">
-        <div class="view-inner">
-          <h2>Configuración</h2>
-
-          <div class="hw-card">
-            <h3>Hardware detectado</h3>
-            <div class="hw-row"><span>Procesador</span><span id="hwCpu">Detectando...</span></div>
-            <div class="hw-row"><span>Núcleos</span><span id="hwCores">-</span></div>
-            <div class="hw-row"><span>RAM total</span><span id="hwRamTotal">-</span></div>
-            <div class="hw-row"><span>Sistema</span><span id="hwPlatform">-</span></div>
-            <div class="hw-row"><span>Gráficos</span><span id="hwGpu">Detectando...</span></div>
-            <div class="hw-row"><span>Almacenamiento</span><span id="hwDisk">Detectando...</span></div>
+        <div class="view-inner-wide">
+          <div class="storage-header">
+            <div class="storage-header-icon" style="background:#22c55e;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+            <div>
+              <h2>Rendimiento</h2>
+              <p class="storage-subtitle">Ajusta la memoria RAM y optimiza el rendimiento del juego</p>
+            </div>
           </div>
 
-          <div class="ram-card">
-            <h3>RAM asignada al juego</h3>
-            <div class="ram-slider-row">
-              <input type="range" id="ramSlider" min="1" max="8" step="0.5" value="4">
-              <span id="ramValue">4 GB</span>
+          <div class="storage-panel" style="margin-bottom: 16px;">
+            <div class="config-panel-header">
+              <div class="config-panel-icon" style="background: rgba(74, 222, 128, 0.15); color: #4ade80;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg>
+              </div>
+              <h4>Información del Sistema</h4>
+              <span class="config-badge" style="margin-left: auto;">AUTO-DETECTADO</span>
             </div>
+            <div class="storage-stat-grid">
+              <div class="storage-stat-card">
+                <div class="storage-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                <div><div class="storage-stat-label" style="margin-bottom:2px;">PROCESADOR</div><div class="storage-stat-value" id="hwCpu" style="font-size: 0.85rem;">Detectando...</div></div>
+              </div>
+              <div class="storage-stat-card">
+                <div class="storage-stat-icon" style="background: rgba(244, 63, 94, 0.15); color: #fb7185;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="1"/><path d="M6 11v2M10 11v2M14 11v2M18 11v2"/></svg></div>
+                <div><div class="storage-stat-label" style="margin-bottom:2px;">MEMORIA RAM</div><div class="storage-stat-value" id="hwRamTotal">-</div></div>
+              </div>
+              <div class="storage-stat-card">
+                <div class="storage-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
+                <div><div class="storage-stat-label" style="margin-bottom:2px;">TARJETA GRÁFICA</div><div class="storage-stat-value" id="hwGpu" style="font-size: 0.85rem;">Detectando...</div></div>
+              </div>
+              <div class="storage-stat-card">
+                <div class="storage-stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20M8 12l2 2 4-4"/></svg></div>
+                <div><div class="storage-stat-label" style="margin-bottom:2px;">SISTEMA OPERATIVO</div><div class="storage-stat-value" id="hwPlatform" style="font-size: 0.85rem;">-</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="storage-panel" style="margin-bottom: 16px;">
+            <div class="config-panel-header">
+              <div class="config-panel-icon" style="background: rgba(245, 166, 35, 0.15); color: #f5a623;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="1"/><path d="M6 11v2M10 11v2M14 11v2M18 11v2"/></svg>
+              </div>
+              <h4>Memoria RAM Asignada</h4>
+              <span class="config-badge" id="ramBadge" style="margin-left: 4px;">- GB</span>
+              <button type="button" class="ram-optimal-btn" id="ramOptimalBtn">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.2 21 12 17.77 5.8 21 7 14.14l-5-4.87 7.1-1.01z"/></svg>
+                Ajuste Óptimo
+              </button>
+            </div>
+
+            <div class="ram-slider-labels">
+              <span class="ram-edge-label" id="ramMinLabel">- MB</span>
+              <span class="ram-big-value" id="ramBigValue">- MB</span>
+              <span class="ram-edge-label" id="ramMaxLabel">- MB</span>
+            </div>
+            <input type="range" id="ramSliderBig" min="2048" max="8192" step="256" value="4096">
+
+            <div class="ram-exact-row">
+              <div class="ram-exact-input-group">
+                <label for="ramExactInput">Valor exacto:</label>
+                <input type="number" id="ramExactInput" step="256">
+                <span>MB</span>
+              </div>
+              <div class="ram-presets" id="ramPresets"></div>
+            </div>
+
             <p class="ram-hint">Recomendado: no asignes más del 50-70% de tu RAM total para evitar que el sistema se vuelva lento.</p>
           </div>
 
-          <div class="ram-card">
-            <h3>Apariencia</h3>
+          <div class="storage-panel">
+            <div class="config-panel-header">
+              <h4>Apariencia</h4>
+            </div>
             <div class="variant-row">
               <label class="variant-option" id="themeDarkOption">
                 <input type="radio" name="themeMode" value="dark" checked>
@@ -1117,17 +2126,108 @@
       </div>
 
       <div class="view" id="view-changelog">
-        <div class="view-inner">
-          <h2>Changelog</h2>
-          <div id="changelogList"></div>
+        <div class="view-inner-wide">
+          <div class="storage-header">
+            <div class="storage-header-icon" style="background:#f97316;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6M9 9h1"/></svg>
+            </div>
+            <div>
+              <h2>Changelog</h2>
+              <p class="storage-subtitle">Historial completo de cambios y actualizaciones</p>
+            </div>
+          </div>
+
+          <div class="changelog-timeline" id="changelogList"></div>
         </div>
       </div>
 
       <div class="view" id="view-storage">
-        <div class="view-inner">
-          <div class="placeholder-card">
-            <h2>Almacenamiento</h2>
-            <p>Esta sección estará disponible próximamente.</p>
+        <div class="view-inner-wide">
+          <div class="storage-header">
+            <div class="storage-header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <h2>Almacenamiento</h2>
+              <p class="storage-subtitle">Gestiona el espacio de tus instancias</p>
+            </div>
+          </div>
+
+          <div class="storage-top-row">
+            <div class="disk-main-card">
+              <div class="disk-donut" id="diskDonut">
+                <div class="disk-donut-inner">
+                  <span class="disk-donut-percent" id="diskPercent">-</span>
+                  <span class="disk-donut-label">USADO</span>
+                </div>
+              </div>
+              <div class="disk-main-info">
+                <div class="disk-main-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  Disco Principal
+                </div>
+                <div class="disk-drive-pill" id="diskDriveLabel">-</div>
+                <div class="disk-main-sizes">
+                  <span class="disk-used" id="diskUsedLabel">-</span><span class="disk-of">de</span><span class="disk-total" id="diskTotalLabel">-</span>
+                </div>
+                <div class="disk-free-line">✓ <span id="diskFreeLabel">-</span> disponibles</div>
+              </div>
+            </div>
+
+            <div class="storage-stat-grid">
+              <div class="storage-stat-card">
+                <div class="storage-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+                <div><div class="storage-stat-value" id="statLauncherSize">-</div><div class="storage-stat-label">LAUNCHER</div></div>
+              </div>
+              <div class="storage-stat-card">
+                <div class="storage-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7l2-4h14l2 4"/></svg></div>
+                <div><div class="storage-stat-value" id="statInstancesSize">-</div><div class="storage-stat-label">INSTANCIAS</div></div>
+              </div>
+              <div class="storage-stat-card">
+                <div class="storage-stat-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg></div>
+                <div><div class="storage-stat-value" id="statDiskUsed">-</div><div class="storage-stat-label">DISCO USADO</div></div>
+              </div>
+              <div class="storage-stat-card">
+                <div class="storage-stat-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+                <div><div class="storage-stat-value" id="statDiskFree">-</div><div class="storage-stat-label">DISPONIBLE</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="storage-distribution-card">
+            <h4>DISTRIBUCIÓN DEL ESPACIO</h4>
+            <div class="distribution-bar">
+              <div class="distribution-segment launcher" id="segLauncher"></div>
+              <div class="distribution-segment instances" id="segInstances"></div>
+              <div class="distribution-segment other" id="segOther"></div>
+              <div class="distribution-segment free" id="segFree"></div>
+            </div>
+            <div class="distribution-legend">
+              <span><i class="legend-dot launcher"></i> Launcher</span>
+              <span><i class="legend-dot instances"></i> Instancias</span>
+              <span><i class="legend-dot other"></i> Otro</span>
+              <span><i class="legend-dot free"></i> Libre</span>
+            </div>
+          </div>
+
+          <div class="storage-instances-row">
+            <div class="storage-panel">
+              <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> INSTANCIAS INSTALADAS</h4>
+              <div id="storageInstanceList"></div>
+              <div class="storage-empty-inline" id="storageEmptyState" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <p>Sin instancias instaladas</p>
+              </div>
+            </div>
+
+            <div class="storage-panel" id="storageDetailPanel">
+              <div class="storage-detail-empty" id="storageDetailEmpty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+                <h4>Selecciona una instancia</h4>
+                <p>Haz clic en una instancia para ver sus accesos rápidos</p>
+              </div>
+              <div class="storage-detail-filled" id="storageDetailFilled" style="display: none;"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1276,6 +2376,7 @@
     </div>
 
     <div class="action-group">
+      <span class="selected-instance-label" id="selectedInstanceLabel" style="display: none;"></span>
       <button class="dropdown-btn" id="addInstanceBtn">Agregar Instancia</button>
 
       <button class="play-btn" id="launchBtn">JUGAR</button>
@@ -1297,9 +2398,51 @@
     <div class="modal-card">
       <h3>Agregar instancia privada</h3>
       <input type="text" class="modal-input" id="instanceKeyInput" placeholder="Introduce tu key de acceso" maxlength="64">
+      <div class="modal-error" id="instanceKeyError" style="display: none;"></div>
+      <div class="modal-success" id="instanceKeySuccess" style="display: none;"></div>
       <div class="modal-actions">
         <button class="modal-btn cancel" id="closeAddInstanceModalBtn">Cancelar</button>
         <button class="modal-btn confirm" id="confirmAddInstanceBtn">Agregar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="javaMissingModal">
+    <div class="modal-card">
+      <h3>Falta Java</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        No se detectó Java en este equipo. Minecraft necesita Java (17 o superior) para poder ejecutarse.
+      </p>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" id="closeJavaMissingModalBtn">Cancelar</button>
+        <button class="modal-btn confirm" id="downloadJavaBtn">Descargar Java</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="deleteInstanceModal">
+    <div class="modal-card">
+      <h3>Eliminar instancia</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;" id="deleteInstanceText"></p>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" id="closeDeleteInstanceModalBtn">Cancelar</button>
+        <button class="modal-btn confirm" id="confirmDeleteInstanceBtn" style="background: #ff6b6b; color: #fff;">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="instanceDetailModal">
+    <div class="modal-card instance-detail-modal-card">
+      <div class="instance-detail-banner" id="instanceDetailBanner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <div class="instance-detail-modal-body">
+        <h3 id="instanceDetailName"></h3>
+        <p id="instanceDetailDescription"></p>
+        <div class="modal-actions">
+          <button class="modal-btn cancel" id="closeInstanceDetailModalBtn">Cerrar</button>
+          <button class="modal-btn confirm" id="selectInstanceDetailBtn">Seleccionar Instancia</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1322,6 +2465,7 @@
   <script>
     const path = require('path');
     const fs = require('fs');
+    const fsPromises = fs.promises;
     const os = require('os');
     const { ipcRenderer } = require('electron');
 
@@ -1329,58 +2473,111 @@
   {
     version: 'v1.0.7',
     date: '1 de septiembre de 2026',
-    changes: [
-      'Sistema de Actualizaciones automáticas corregido'
-    ]
+    added: [],
+    improved: [],
+    fixed: ['Sistema de actualizaciones automáticas corregido']
   },
   {
     version: 'v1.0.6',
     date: '1 de septiembre de 2026',
-    changes: [
-      'Actualizaciones Automaticas'
-    ]
+    added: ['Actualizaciones automáticas'],
+    improved: [],
+    fixed: []
   },
   {
     version: 'v1.0.4',
     date: '30 de agosto de 2026',
-    changes: [
-      'Rework de todas las interfaces',
+    added: [
       'Sistema social de mensajería',
       'Notificaciones de mensajes',
-      'Sistema de RPC (Actividad) en Discord.'
-    ]
+      'Sistema de RPC (Actividad) en Discord'
+    ],
+    improved: ['Rework de todas las interfaces'],
+    fixed: []
   },
   {
     version: 'v1.0.3',
     date: '27 de agosto de 2026',
-    changes: [
+    added: [
       'Lanzamiento inicial de Spyder Client',
       'Inicio de sesión con Microsoft y modo Offline',
       'Vestidor con cambio de skins y capas en visor 3D',
       'Modo oscuro y modo claro'
-    ]
+    ],
+    improved: [],
+    fixed: []
   }
 ];
+
+    const CHANGELOG_ICON_ADDED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>';
+    const CHANGELOG_ICON_IMPROVED = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.2 21 12 17.77 5.8 21 7 14.14l-5-4.87 7.1-1.01z"/></svg>';
+    const CHANGELOG_ICON_FIXED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>';
+    const CHANGELOG_ICON_CALENDAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+    const CHANGELOG_ICON_CHEVRON = '<svg class="changelog-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
 
     const changelogList = document.getElementById('changelogList');
 
     function renderChangelog() {
-      changelogList.innerHTML = CHANGELOG_ENTRIES.map((entry) => `
-        <div class="changelog-card">
-          <div class="changelog-card-header">
-            <span class="changelog-version">${entry.version}</span>
-            <span class="changelog-date">${entry.date}</span>
+      changelogList.innerHTML = CHANGELOG_ENTRIES.map((entry, index) => {
+        const isLatest = index === 0;
+        const sections = [
+          { className: 'added', label: 'Agregado', icon: CHANGELOG_ICON_ADDED, items: entry.added },
+          { className: 'improved', label: 'Mejorado', icon: CHANGELOG_ICON_IMPROVED, items: entry.improved },
+          { className: 'fixed', label: 'Corregido', icon: CHANGELOG_ICON_FIXED, items: entry.fixed }
+        ].filter((s) => s.items && s.items.length);
+
+        return `
+          <div class="changelog-entry${isLatest ? ' latest' : ''}">
+            <div class="changelog-track">
+              <span class="changelog-dot"></span>
+              <span class="changelog-track-line"></span>
+            </div>
+            <div class="changelog-card${isLatest ? ' expanded latest' : ''}">
+              <div class="changelog-card-header">
+                <span class="changelog-version-title">Versión ${entry.version.replace(/^v/i, '')}</span>
+                ${isLatest ? '<span class="changelog-badge-latest">Última</span>' : ''}
+                <span class="changelog-date-chip">${CHANGELOG_ICON_CALENDAR}${entry.date}</span>
+                ${CHANGELOG_ICON_CHEVRON}
+              </div>
+              <div class="changelog-card-body">
+                ${sections.map((s) => `
+                  <div class="changelog-section">
+                    <span class="changelog-pill ${s.className}">${s.icon}${s.label}</span>
+                    <ul>${s.items.map((item) => `<li>${item}</li>`).join('')}</ul>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
           </div>
-          <ul class="changelog-list">
-            ${entry.changes.map((change) => `<li>${change}</li>`).join('')}
-          </ul>
-        </div>
-      `).join('');
+        `;
+      }).join('');
+
+      changelogList.querySelectorAll('.changelog-card-header').forEach((header) => {
+        header.addEventListener('click', () => {
+          const card = header.closest('.changelog-card');
+          const body = card.querySelector('.changelog-card-body');
+
+          if (card.classList.contains('expanded')) {
+            body.style.maxHeight = body.scrollHeight + 'px';
+            requestAnimationFrame(() => {
+              body.style.maxHeight = '0px';
+            });
+            card.classList.remove('expanded');
+          } else {
+            card.classList.add('expanded');
+            body.style.maxHeight = body.scrollHeight + 'px';
+          }
+        });
+      });
+
+      changelogList.querySelectorAll('.changelog-card.expanded .changelog-card-body').forEach((body) => {
+        body.style.maxHeight = body.scrollHeight + 'px';
+      });
     }
 
     renderChangelog();
 
-    const falcomPath = path.join(process.env.APPDATA, '.falcom-client');
+    const falcomPath = path.join(process.env.APPDATA, '.spyderclient');
     const instancesPath = path.join(falcomPath, 'instances');
     const configPath = path.join(falcomPath, 'config.json');
 
@@ -1407,6 +2604,10 @@
         btn.classList.add('active');
         document.getElementById('view-' + btn.dataset.view).classList.add('active');
 
+        if (btn.dataset.view === 'storage') {
+          renderStorageView();
+        }
+
         const sectionLabel = DISCORD_SECTION_LABELS[btn.dataset.view] || 'En el launcher';
         ipcRenderer.invoke('update-discord-presence', {
           details: 'En el launcher',
@@ -1416,40 +2617,108 @@
     });
 
     const hwCpu = document.getElementById('hwCpu');
-    const hwCores = document.getElementById('hwCores');
     const hwRamTotal = document.getElementById('hwRamTotal');
     const hwPlatform = document.getElementById('hwPlatform');
-    const ramSlider = document.getElementById('ramSlider');
-    const ramValue = document.getElementById('ramValue');
+    const hwGpu = document.getElementById('hwGpu');
 
     const totalRamGB = Math.round((os.totalmem() / (1024 ** 3)) * 10) / 10;
+    const totalRamMB = Math.round(os.totalmem() / (1024 ** 2));
     const cpus = os.cpus();
 
     hwCpu.innerText = cpus.length ? cpus[0].model.trim() : 'Desconocido';
-    hwCores.innerText = `${cpus.length} núcleos`;
     hwRamTotal.innerText = `${totalRamGB} GB`;
     hwPlatform.innerText = `${os.platform()} (${os.arch()})`;
 
-    ramSlider.max = Math.max(1, Math.floor(totalRamGB));
-
-    const hwGpu = document.getElementById('hwGpu');
-    const hwDisk = document.getElementById('hwDisk');
-
     ipcRenderer.invoke('get-hardware-info').then((info) => {
       hwGpu.innerText = info.gpu || 'No disponible';
-
-      if (info.disk) {
-        hwDisk.innerText = `${info.disk.free} GB libres de ${info.disk.total} GB`;
-      } else {
-        hwDisk.innerText = 'No disponible';
-      }
     }).catch((err) => {
       console.error('Error obteniendo hardware:', err);
       hwGpu.innerText = 'No disponible';
-      hwDisk.innerText = 'No disponible';
     });
 
-    let appConfig = { ram: Math.max(1, Math.min(4, Math.floor(totalRamGB / 2))) };
+    // --- RAM asignada ---
+    const RAM_MIN_MB = 2048;
+    const RAM_MAX_MB = Math.max(RAM_MIN_MB + 512, Math.floor((totalRamMB * 0.75) / 256) * 256);
+    const RAM_OPTIMAL_MB = Math.min(RAM_MAX_MB, Math.max(RAM_MIN_MB, Math.round((totalRamMB * 0.5) / 256) * 256));
+
+    const ramSliderBig = document.getElementById('ramSliderBig');
+    const ramExactInput = document.getElementById('ramExactInput');
+    const ramBigValue = document.getElementById('ramBigValue');
+    const ramMinLabel = document.getElementById('ramMinLabel');
+    const ramMaxLabel = document.getElementById('ramMaxLabel');
+    const ramBadge = document.getElementById('ramBadge');
+    const ramPresetsWrap = document.getElementById('ramPresets');
+    const ramOptimalBtn = document.getElementById('ramOptimalBtn');
+
+    ramSliderBig.min = RAM_MIN_MB;
+    ramSliderBig.max = RAM_MAX_MB;
+    ramExactInput.min = RAM_MIN_MB;
+    ramExactInput.max = RAM_MAX_MB;
+    ramMinLabel.innerText = `${RAM_MIN_MB} MB`;
+    ramMaxLabel.innerText = `${RAM_MAX_MB} MB`;
+
+    function buildRamPresetsMB() {
+      const minGB = RAM_MIN_MB / 1024;
+      const maxGB = RAM_MAX_MB / 1024;
+      const count = 6;
+      const values = new Set();
+      for (let i = 0; i < count; i++) {
+        const gb = minGB + ((maxGB - minGB) * i) / (count - 1);
+        values.add(Math.round(gb));
+      }
+      return Array.from(values).sort((a, b) => a - b).map((gb) => gb * 1024);
+    }
+
+    const ramPresetValues = buildRamPresetsMB();
+
+    ramPresetValues.forEach((mb) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ram-preset-btn';
+      btn.dataset.mb = mb;
+      btn.innerText = `${Math.round(mb / 1024)} GB`;
+      btn.addEventListener('click', () => setRamMB(mb, { save: true }));
+      ramPresetsWrap.appendChild(btn);
+    });
+
+    function formatRamBadge(mb) {
+      const gb = mb / 1024;
+      return `${Number.isInteger(gb) ? gb : gb.toFixed(1)} GB`;
+    }
+
+    function setRamMB(mb, { save = false } = {}) {
+      const clamped = Math.min(RAM_MAX_MB, Math.max(RAM_MIN_MB, Math.round(mb)));
+      ramSliderBig.value = clamped;
+      ramExactInput.value = clamped;
+      ramBigValue.innerText = `${clamped} MB`;
+      ramBadge.innerText = formatRamBadge(clamped);
+
+      ramPresetsWrap.querySelectorAll('.ram-preset-btn').forEach((btn) => {
+        btn.classList.toggle('active', Number(btn.dataset.mb) === clamped);
+      });
+
+      if (save) {
+        appConfig.ram = Math.round((clamped / 1024) * 100) / 100;
+        fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
+      }
+    }
+
+    ramSliderBig.addEventListener('input', () => {
+      setRamMB(Number(ramSliderBig.value));
+    });
+    ramSliderBig.addEventListener('change', () => {
+      setRamMB(Number(ramSliderBig.value), { save: true });
+    });
+
+    ramExactInput.addEventListener('change', () => {
+      setRamMB(Number(ramExactInput.value) || RAM_MIN_MB, { save: true });
+    });
+
+    ramOptimalBtn.addEventListener('click', () => {
+      setRamMB(RAM_OPTIMAL_MB, { save: true });
+    });
+
+    let appConfig = { ram: Math.round((RAM_OPTIMAL_MB / 1024) * 100) / 100 };
 
     if (fs.existsSync(configPath)) {
       try {
@@ -1459,17 +2728,7 @@
       }
     }
 
-    ramSlider.value = appConfig.ram;
-    ramValue.innerText = `${appConfig.ram} GB`;
-
-    ramSlider.addEventListener('input', () => {
-      ramValue.innerText = `${ramSlider.value} GB`;
-    });
-
-    ramSlider.addEventListener('change', () => {
-      appConfig.ram = Number(ramSlider.value);
-      fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
-    });
+    setRamMB(Math.round((appConfig.ram || RAM_OPTIMAL_MB / 1024) * 1024));
 
     const headerLogoImg = document.getElementById('headerLogoImg');
     const themeDarkRadio = document.querySelector('input[name="themeMode"][value="dark"]');
@@ -1500,14 +2759,423 @@
 
     let selectedInstance = null;
 
+    const KNOWN_INSTANCES = {
+      'VANILLA1201': {
+        id: 'vanilla-1.20.1',
+        name: 'Minecraft 1.20.1 Vanilla',
+        description: 'Minecraft Vanilla, sin mods, tal como se juega originalmente.',
+        image: 'assets/instances/minecraft-hero.png'
+      }
+    };
+
+    const INSTANCE_BY_ID = {};
+    Object.values(KNOWN_INSTANCES).forEach((inst) => {
+      INSTANCE_BY_ID[inst.id] = inst;
+    });
+
+    function getInstanceDisplayInfo(inst) {
+      const known = INSTANCE_BY_ID[inst.id];
+      return {
+        id: inst.id,
+        name: inst.name || known?.name || inst.id,
+        description: known?.description || 'Sin descripción disponible.',
+        image: known?.image || null
+      };
+    }
+
+    if (!Array.isArray(appConfig.instances)) {
+      appConfig.instances = [];
+    }
+
+    const selectedInstanceLabel = document.getElementById('selectedInstanceLabel');
+    const instanceCardsGrid = document.getElementById('instanceCardsGrid');
+    const instanceDetailModal = document.getElementById('instanceDetailModal');
+    const instanceDetailBanner = document.getElementById('instanceDetailBanner');
+    const instanceDetailName = document.getElementById('instanceDetailName');
+    const instanceDetailDescription = document.getElementById('instanceDetailDescription');
+    const closeInstanceDetailModalBtn = document.getElementById('closeInstanceDetailModalBtn');
+    const selectInstanceDetailBtn = document.getElementById('selectInstanceDetailBtn');
+
+    function saveInstancesConfig() {
+      fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
+    }
+
+    function updateSelectedInstanceLabel() {
+      if (!selectedInstance) {
+        selectedInstanceLabel.style.display = 'none';
+        return;
+      }
+      const inst = appConfig.instances.find((i) => i.id === selectedInstance);
+      if (!inst) {
+        selectedInstanceLabel.style.display = 'none';
+        return;
+      }
+      selectedInstanceLabel.style.display = 'flex';
+    }
+
+    function renderInstanceBannerHtml(image) {
+      return image
+        ? `<img src="${image}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+           <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:38px;height:38px;opacity:0.3;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+           </div>`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>`;
+    }
+
+    function openInstanceDetailModal(inst) {
+      const info = getInstanceDisplayInfo(inst);
+      instanceDetailBanner.innerHTML = renderInstanceBannerHtml(info.image);
+      instanceDetailName.innerText = info.name;
+      instanceDetailDescription.innerText = info.description;
+      selectInstanceDetailBtn.dataset.instanceId = info.id;
+      selectInstanceDetailBtn.innerText = info.id === selectedInstance ? 'Instancia seleccionada' : 'Seleccionar Instancia';
+      selectInstanceDetailBtn.disabled = info.id === selectedInstance;
+      instanceDetailModal.classList.add('active');
+    }
+
+    closeInstanceDetailModalBtn.addEventListener('click', () => {
+      instanceDetailModal.classList.remove('active');
+    });
+
+    selectInstanceDetailBtn.addEventListener('click', () => {
+      const id = selectInstanceDetailBtn.dataset.instanceId;
+      if (!id) return;
+      selectedInstance = id;
+      appConfig.selectedInstance = id;
+      saveInstancesConfig();
+      updateSelectedInstanceLabel();
+      renderHomeInstanceCards();
+      instanceDetailModal.classList.remove('active');
+    });
+
+    function renderHomeInstanceCards() {
+      instanceCardsGrid.innerHTML = '';
+
+      appConfig.instances.forEach((inst) => {
+        const info = getInstanceDisplayInfo(inst);
+        const tile = document.createElement('div');
+        tile.className = 'instance-tile';
+        tile.innerHTML = `
+          <div class="instance-tile-image">
+            ${renderInstanceBannerHtml(info.image)}
+            ${info.id === selectedInstance ? '<span class="instance-tile-active-tag">Activa</span>' : ''}
+          </div>
+          <div class="instance-tile-body">
+            <h4>${info.name}</h4>
+            <p>${info.description}</p>
+          </div>
+        `;
+        tile.addEventListener('click', () => openInstanceDetailModal(inst));
+        instanceCardsGrid.appendChild(tile);
+      });
+
+      updateSelectedInstanceLabel();
+    }
+
+    function addUnlockedInstance(inst) {
+      const alreadyAdded = appConfig.instances.some((i) => i.id === inst.id);
+      if (!alreadyAdded) {
+        appConfig.instances.push(inst);
+      }
+      selectedInstance = inst.id;
+      appConfig.selectedInstance = inst.id;
+      saveInstancesConfig();
+      renderHomeInstanceCards();
+      if (typeof renderStorageView === 'function') renderStorageView();
+    }
+
+    async function getFolderSizeBytes(dirPath, excludeNames = [], counter = { n: 0 }) {
+      let total = 0;
+      let entries;
+      try {
+        entries = await fsPromises.readdir(dirPath, { withFileTypes: true });
+      } catch (err) {
+        return 0;
+      }
+      for (const entry of entries) {
+        if (excludeNames.includes(entry.name)) continue;
+        const fullPath = path.join(dirPath, entry.name);
+        if (entry.isDirectory()) {
+          total += await getFolderSizeBytes(fullPath, [], counter);
+        } else {
+          try {
+            const st = await fsPromises.stat(fullPath);
+            total += st.size;
+          } catch (err) {
+          }
+        }
+
+        counter.n++;
+        if (counter.n % 120 === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+      }
+      return total;
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`;
+      if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+      return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+    }
+
+    const storageInstanceList = document.getElementById('storageInstanceList');
+    const storageEmptyState = document.getElementById('storageEmptyState');
+    const deleteInstanceModal = document.getElementById('deleteInstanceModal');
+    const deleteInstanceText = document.getElementById('deleteInstanceText');
+    const closeDeleteInstanceModalBtn = document.getElementById('closeDeleteInstanceModalBtn');
+    const confirmDeleteInstanceBtn = document.getElementById('confirmDeleteInstanceBtn');
+
+    const diskDonut = document.getElementById('diskDonut');
+    const diskPercent = document.getElementById('diskPercent');
+    const diskDriveLabel = document.getElementById('diskDriveLabel');
+    const diskUsedLabel = document.getElementById('diskUsedLabel');
+    const diskTotalLabel = document.getElementById('diskTotalLabel');
+    const diskFreeLabel = document.getElementById('diskFreeLabel');
+    const statLauncherSize = document.getElementById('statLauncherSize');
+    const statInstancesSize = document.getElementById('statInstancesSize');
+    const statDiskUsed = document.getElementById('statDiskUsed');
+    const statDiskFree = document.getElementById('statDiskFree');
+    const segLauncher = document.getElementById('segLauncher');
+    const segInstances = document.getElementById('segInstances');
+    const segOther = document.getElementById('segOther');
+    const segFree = document.getElementById('segFree');
+    const storageDetailEmpty = document.getElementById('storageDetailEmpty');
+    const storageDetailFilled = document.getElementById('storageDetailFilled');
+
+    let instancePendingDelete = null;
+    let selectedDetailInstanceId = null;
+    const instanceSizeCache = {};
+    let launcherSizeCache = null;
+
+    function renderInstanceDetail(inst, sizeBytes) {
+      if (!inst) {
+        selectedDetailInstanceId = null;
+        storageDetailEmpty.style.display = 'flex';
+        storageDetailFilled.style.display = 'none';
+        return;
+      }
+
+      selectedDetailInstanceId = inst.id;
+      storageDetailEmpty.style.display = 'none';
+      storageDetailFilled.style.display = 'block';
+      const sizeLabel = sizeBytes === null ? 'Calculando...' : formatBytes(sizeBytes);
+      storageDetailFilled.innerHTML = `
+        <h3>${inst.name}</h3>
+        <div class="detail-size">${sizeLabel}${inst.id === selectedInstance ? ' · Instancia en uso' : ''}</div>
+        <div class="storage-detail-actions">
+          <button class="detail-action-btn" id="detailUseBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Usar esta instancia
+          </button>
+          <button class="detail-action-btn" id="detailOpenFolderBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            Abrir carpeta
+          </button>
+          <button class="detail-action-btn danger" id="detailDeleteBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Eliminar instancia
+          </button>
+        </div>
+      `;
+
+      document.getElementById('detailUseBtn').addEventListener('click', () => {
+        selectedInstance = inst.id;
+        appConfig.selectedInstance = inst.id;
+        saveInstancesConfig();
+        renderHomeInstanceCards();
+        renderStorageView();
+      });
+
+      document.getElementById('detailOpenFolderBtn').addEventListener('click', () => {
+        ipcRenderer.invoke('open-folder', path.join(instancesPath, inst.id));
+      });
+
+      document.getElementById('detailDeleteBtn').addEventListener('click', () => {
+        instancePendingDelete = inst;
+        deleteInstanceText.innerText = `¿Seguro que quieres eliminar "${inst.name}"? Esto borrará todos sus archivos descargados.`;
+        deleteInstanceModal.classList.add('active');
+      });
+    }
+
+    function renderInstanceRow(inst, sizeBytes) {
+      const row = document.createElement('div');
+      row.className = 'instance-row' + (inst.id === selectedDetailInstanceId ? ' selected-row' : '');
+      row.dataset.instanceId = inst.id;
+      const sizeLabel = sizeBytes === null ? 'Calculando...' : formatBytes(sizeBytes);
+      row.innerHTML = `
+        <div class="instance-row-info">
+          <h4>${inst.name}</h4>
+          <span class="instance-row-size">${sizeLabel}${inst.id === selectedInstance ? ' · en uso' : ''}</span>
+        </div>
+        ${inst.id === selectedInstance ? '<span class="instance-badge">Activa</span>' : ''}
+      `;
+      row.addEventListener('click', () => {
+        storageInstanceList.querySelectorAll('.instance-row').forEach((r) => r.classList.remove('selected-row'));
+        row.classList.add('selected-row');
+        renderInstanceDetail(inst, instanceSizeCache[inst.id] ?? null);
+      });
+      return row;
+    }
+
+    function updateDistributionUI(launcherBytes, instancesTotalBytes, diskInfo) {
+      statLauncherSize.innerText = formatBytes(launcherBytes);
+      statInstancesSize.innerText = formatBytes(instancesTotalBytes);
+
+      if (diskInfo && diskInfo.total) {
+        const totalBytes = diskInfo.total * 1024 ** 3;
+        const freeBytes = diskInfo.free * 1024 ** 3;
+        const usedBytes = Math.max(0, totalBytes - freeBytes);
+        const otherBytes = Math.max(0, usedBytes - launcherBytes - instancesTotalBytes);
+        const pctUsed = Math.round((usedBytes / totalBytes) * 100);
+
+        diskDonut.style.setProperty('--pct', pctUsed);
+        diskPercent.innerText = `${pctUsed}%`;
+        diskDriveLabel.innerText = diskInfo.drive || '-';
+        diskUsedLabel.innerText = `${diskInfo.total - diskInfo.free >= 0 ? (diskInfo.total - diskInfo.free).toFixed(2) : 0} GB`;
+        diskTotalLabel.innerText = `${diskInfo.total.toFixed(2)} GB`;
+        diskFreeLabel.innerText = `${diskInfo.free.toFixed(2)} GB`;
+        statDiskUsed.innerText = `${(usedBytes / 1024 ** 3).toFixed(2)} GB`;
+        statDiskFree.innerText = `${diskInfo.free.toFixed(2)} GB`;
+
+        segLauncher.style.width = `${(launcherBytes / totalBytes) * 100}%`;
+        segInstances.style.width = `${(instancesTotalBytes / totalBytes) * 100}%`;
+        segOther.style.width = `${(otherBytes / totalBytes) * 100}%`;
+        segFree.style.width = `${(freeBytes / totalBytes) * 100}%`;
+      } else {
+        diskPercent.innerText = '-';
+        diskDriveLabel.innerText = '-';
+        diskUsedLabel.innerText = '-';
+        diskTotalLabel.innerText = '-';
+        diskFreeLabel.innerText = '-';
+        statDiskUsed.innerText = '-';
+        statDiskFree.innerText = '-';
+      }
+    }
+
+    let storageRenderToken = 0;
+
+    function renderStorageView() {
+      const myToken = ++storageRenderToken;
+
+      storageInstanceList.innerHTML = '';
+
+      if (appConfig.instances.length === 0) {
+        storageEmptyState.style.display = 'flex';
+      } else {
+        storageEmptyState.style.display = 'none';
+        appConfig.instances.forEach((inst) => {
+          const cached = instanceSizeCache[inst.id] ?? null;
+          storageInstanceList.appendChild(renderInstanceRow(inst, cached));
+        });
+      }
+
+      if (selectedDetailInstanceId && !appConfig.instances.some((i) => i.id === selectedDetailInstanceId)) {
+        renderInstanceDetail(null);
+      } else if (selectedDetailInstanceId) {
+        renderInstanceDetail(
+          appConfig.instances.find((i) => i.id === selectedDetailInstanceId),
+          instanceSizeCache[selectedDetailInstanceId] ?? null
+        );
+      }
+
+      const cachedInstancesTotal = appConfig.instances.reduce(
+        (sum, inst) => sum + (instanceSizeCache[inst.id] ?? 0), 0
+      );
+      statLauncherSize.innerText = launcherSizeCache === null ? 'Calculando...' : formatBytes(launcherSizeCache);
+      statInstancesSize.innerText = formatBytes(cachedInstancesTotal);
+
+      const diskInfoPromise = ipcRenderer.invoke('get-hardware-info').then((info) => info.disk).catch(() => null);
+
+      const instanceSizePromises = appConfig.instances.map((inst) =>
+        getFolderSizeBytes(path.join(instancesPath, inst.id)).then((size) => {
+          if (myToken !== storageRenderToken) return;
+          instanceSizeCache[inst.id] = size;
+
+          const row = storageInstanceList.querySelector(`.instance-row[data-instance-id="${inst.id}"] .instance-row-size`);
+          if (row) {
+            row.innerText = `${formatBytes(size)}${inst.id === selectedInstance ? ' · en uso' : ''}`;
+          }
+          if (selectedDetailInstanceId === inst.id) {
+            renderInstanceDetail(inst, size);
+          }
+          return size;
+        })
+      );
+
+      const launcherSizePromise = getFolderSizeBytes(falcomPath, ['instances']).then((size) => {
+        if (myToken !== storageRenderToken) return;
+        launcherSizeCache = size;
+        return size;
+      });
+
+      Promise.all([diskInfoPromise, launcherSizePromise, ...instanceSizePromises]).then(([diskInfo, launcherBytes, ...instanceSizes]) => {
+        if (myToken !== storageRenderToken) return;
+        const instancesTotalBytes = instanceSizes.reduce((sum, s) => sum + s, 0);
+        updateDistributionUI(launcherBytes, instancesTotalBytes, diskInfo);
+      });
+    }
+
+    closeDeleteInstanceModalBtn.addEventListener('click', () => {
+      instancePendingDelete = null;
+      deleteInstanceModal.classList.remove('active');
+    });
+
+    confirmDeleteInstanceBtn.addEventListener('click', () => {
+      if (!instancePendingDelete) return;
+
+      try {
+        fs.rmSync(path.join(instancesPath, instancePendingDelete.id), { recursive: true, force: true });
+      } catch (err) {
+        console.error('No se pudo borrar la carpeta de la instancia:', err);
+      }
+
+      appConfig.instances = appConfig.instances.filter((i) => i.id !== instancePendingDelete.id);
+      delete instanceSizeCache[instancePendingDelete.id];
+      launcherSizeCache = null; // el espacio liberado cambia el tamaño "libre" del launcher/disco
+
+      if (selectedInstance === instancePendingDelete.id) {
+        selectedInstance = appConfig.instances[0]?.id || null;
+        appConfig.selectedInstance = selectedInstance;
+      }
+
+      if (selectedDetailInstanceId === instancePendingDelete.id) {
+        selectedDetailInstanceId = null;
+      }
+
+      saveInstancesConfig();
+      renderHomeInstanceCards();
+      renderStorageView();
+
+      instancePendingDelete = null;
+      deleteInstanceModal.classList.remove('active');
+    });
+
+    // Restaurar instancias desbloqueadas guardadas de sesiones anteriores
+    if (appConfig.instances.length > 0) {
+      selectedInstance = appConfig.instances.some((i) => i.id === appConfig.selectedInstance)
+        ? appConfig.selectedInstance
+        : appConfig.instances[0].id;
+      renderHomeInstanceCards();
+    }
+
     const addInstanceBtn = document.getElementById('addInstanceBtn');
     const addInstanceModal = document.getElementById('addInstanceModal');
     const instanceKeyInput = document.getElementById('instanceKeyInput');
+    const instanceKeyError = document.getElementById('instanceKeyError');
+    const instanceKeySuccess = document.getElementById('instanceKeySuccess');
     const closeAddInstanceModalBtn = document.getElementById('closeAddInstanceModalBtn');
     const confirmAddInstanceBtn = document.getElementById('confirmAddInstanceBtn');
 
     addInstanceBtn.addEventListener('click', () => {
       instanceKeyInput.value = '';
+      instanceKeyInput.disabled = false;
+      instanceKeyError.style.display = 'none';
+      instanceKeyError.innerText = '';
+      instanceKeySuccess.style.display = 'none';
+      instanceKeySuccess.innerText = '';
+      confirmAddInstanceBtn.disabled = false;
       addInstanceModal.classList.add('active');
       instanceKeyInput.focus();
     });
@@ -1516,23 +3184,50 @@
       addInstanceModal.classList.remove('active');
     });
 
-    const TEMP_INSTANCE_CODE = 'VANILLA1201';
+    function showInstanceKeyError(text) {
+      instanceKeySuccess.style.display = 'none';
+      instanceKeyError.innerText = text;
+      instanceKeyError.style.display = 'block';
+    }
 
     confirmAddInstanceBtn.addEventListener('click', () => {
       const key = instanceKeyInput.value.trim();
+      instanceKeyError.style.display = 'none';
+
       if (!key) {
-        alert('Introduce una key de acceso válida.');
+        showInstanceKeyError('Introduce una key de acceso válida.');
         return;
       }
 
-      if (key.toUpperCase() === TEMP_INSTANCE_CODE) {
-        selectedInstance = 'vanilla-1.20.1';
-        alert('Instancia agregada: Minecraft 1.20.1 Vanilla. Ya puedes presionar JUGAR.');
-        addInstanceModal.classList.remove('active');
+      const instance = KNOWN_INSTANCES[key.toUpperCase()];
+
+      if (instance) {
+        addUnlockedInstance(instance);
+        instanceKeySuccess.innerText = `Key válida. Instancia agregada: ${instance.name}.`;
+        instanceKeySuccess.style.display = 'block';
+        instanceKeyInput.disabled = true;
+        confirmAddInstanceBtn.disabled = true;
+        setStatusLabel(`Instancia agregada: ${instance.name}. Ya puedes presionar JUGAR.`);
+        setTimeout(() => {
+          addInstanceModal.classList.remove('active');
+        }, 1200);
         return;
       }
 
-      alert('Key no reconocida.');
+      showInstanceKeyError('Key no reconocida.');
+    });
+
+    const javaMissingModal = document.getElementById('javaMissingModal');
+    const closeJavaMissingModalBtn = document.getElementById('closeJavaMissingModalBtn');
+    const downloadJavaBtn = document.getElementById('downloadJavaBtn');
+
+    closeJavaMissingModalBtn.addEventListener('click', () => {
+      javaMissingModal.classList.remove('active');
+    });
+
+    downloadJavaBtn.addEventListener('click', () => {
+      ipcRenderer.invoke('open-java-download');
+      javaMissingModal.classList.remove('active');
     });
 
     const usernameText = document.getElementById('usernameText');
@@ -1697,6 +3392,12 @@
       }
       if (!selectedInstance) {
         alert('Agrega o selecciona una instancia antes de jugar.');
+        return;
+      }
+
+      const hasJava = await ipcRenderer.invoke('check-java-installed');
+      if (!hasJava) {
+        javaMissingModal.classList.add('active');
         return;
       }
 
