@@ -1449,6 +1449,7 @@
       line-height: 1.45;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -1463,8 +1464,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      text-align: center;
       gap: 8px;
-      min-height: 260px;
+      padding: 30px 16px;
+      min-height: 165px;
       color: var(--text-faint);
     }
 
@@ -1487,21 +1490,6 @@
     .instance-tile-add span {
       font-size: 0.9rem;
       font-weight: 500;
-    }
-
-    .instance-tile-add {
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      border-style: dashed;
-      color: var(--text-faint);
-      padding: 30px 16px;
-      gap: 8px;
-      min-height: 165px;
-    }
-
-    .instance-tile-add:hover {
-      color: var(--text-primary);
     }
 
     .instance-tile-add svg {
@@ -1818,6 +1806,194 @@
       font-size: 0.85rem;
     }
 
+    .add-friend-modal-card {
+      width: 440px;
+      max-width: 90vw;
+    }
+
+    .friends-panel {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .friends-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .friends-panel-header h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .friends-tabs {
+      display: flex;
+      gap: 4px;
+      margin-left: 4px;
+    }
+
+    .friends-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .friends-tab:hover {
+      color: var(--text-primary);
+    }
+
+    .friends-tab.active {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    .friends-add-btn {
+      margin-left: auto;
+      background: #4ade80;
+      color: #06210f;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .friends-add-btn:hover {
+      opacity: 0.85;
+    }
+
+    .friends-panel-count {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-faint);
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .friends-panel-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    .friends-panel-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .friends-panel-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    .friends-panel-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 8px;
+      border-radius: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .friends-panel-row:hover {
+      background: var(--bg-input);
+    }
+
+    .friends-panel-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .friends-panel-avatar-wrap img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      image-rendering: pixelated;
+      display: block;
+    }
+
+    .friends-status-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid var(--bg-card);
+      background: var(--text-faint);
+    }
+
+    .friends-status-dot.online {
+      background: #4ade80;
+    }
+
+    .friends-panel-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .friends-panel-info .name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .friends-panel-info .status {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+    }
+
+    .friends-panel-chat-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color 0.15s ease;
+    }
+
+    .friends-panel-chat-btn:hover {
+      border-color: var(--text-primary);
+    }
+
+    .friends-panel-chat-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .friends-panel-empty {
+      color: var(--text-faint);
+      font-size: 0.85rem;
+      padding: 20px 8px;
+    }
+
     .social-rail-search input {
       flex: 1;
       min-width: 0;
@@ -1953,6 +2129,73 @@
 
     .chat-input-row input {
       flex: 1;
+    }
+
+    .typing-indicator {
+      display: none;
+      padding: 0 4px 8px;
+      flex-shrink: 0;
+    }
+
+    .typing-indicator.visible {
+      display: flex;
+    }
+
+    .typing-bubble-dots {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--skin-preview-bg);
+      padding: 9px 13px;
+      border-radius: 12px;
+      border-bottom-left-radius: 2px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-faint);
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    .friend-name-col {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .friend-typing {
+      font-size: 0.7rem;
+      color: #4ade80;
+      font-style: italic;
+    }
+
+    .unread-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #ef4444;
+      flex-shrink: 0;
+    }
+
+    .friends-panel-info .status.typing {
+      color: #4ade80;
+      font-style: italic;
     }
 
     .changelog-timeline {
@@ -2288,7 +2531,7 @@
 
   <header>
     <div class="logo"><img id="headerLogoImg" src="assets/aranasinfondo.png" alt="Falcom logo"><span class="logo-text"><span class="logo-bold">Spyder</span> <span class="logo-thin">CLIENT</span></span></div>
-    <span class="version-tag">v1.1.16</span>
+    <span class="version-tag">v1.1.17</span>
   </header>
 
   <div class="main-layout">
@@ -2544,12 +2787,6 @@
               Amigos
             </button>
 
-            <div class="social-rail-search" id="socialSearchBox">
-              <input type="text" id="friendSearchInput" class="skin-file-input" placeholder="Buscar jugador...">
-              <button class="auth-btn offline-btn" id="friendSearchBtn">Buscar</button>
-            </div>
-            <div id="friendSearchResults"></div>
-
             <div class="social-rail-section">
               <h4 class="social-rail-heading">Solicitudes recibidas</h4>
               <div id="friendRequestsList"><p class="ram-hint">No tienes solicitudes pendientes.</p></div>
@@ -2562,19 +2799,34 @@
           </div>
 
           <div class="social-chat-area">
+            <div class="friends-panel" id="friendsManagementPanel">
+              <div class="friends-panel-header">
+                <h3>Amigos</h3>
+                <div class="friends-tabs">
+                  <button type="button" class="friends-tab active" data-tab="online">En línea</button>
+                  <button type="button" class="friends-tab" data-tab="all">Todos</button>
+                </div>
+                <button type="button" class="friends-add-btn" id="openAddFriendModalBtn">Añadir amigo</button>
+              </div>
+              <div class="friends-panel-count" id="friendsPanelCount">Conectado — 0</div>
+              <div class="friends-panel-list" id="friendsPanelList"></div>
+            </div>
+
             <div class="chat-card" id="chatCard" style="display: none;">
               <div class="chat-card-header">
                 <h3 id="chatWithName">Chat</h3>
                 <button class="chat-close-btn" id="chatCloseBtn" title="Cerrar chat">✕</button>
               </div>
               <div class="chat-messages" id="chatMessages"></div>
+              <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-bubble-dots">
+                  <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+                </div>
+              </div>
               <div class="chat-input-row">
                 <input type="text" id="chatInput" class="skin-file-input" placeholder="Escribe un mensaje...">
                 <button class="play-btn" id="chatSendBtn" style="padding: 10px 22px;">Enviar</button>
               </div>
-            </div>
-            <div class="chat-empty-state" id="chatEmptyState">
-              <p class="ram-hint">Selecciona un amigo de la lista para chatear.</p>
             </div>
           </div>
 
@@ -2735,6 +2987,21 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="addFriendModal">
+    <div class="modal-card add-friend-modal-card">
+      <h3>Añadir amigo</h3>
+      <p style="color: var(--text-secondary); font-size: 0.85rem;">Puedes añadir amigos con su nombre de usuario premium de Minecraft.</p>
+      <div class="social-rail-search">
+        <input type="text" id="friendSearchInput" class="skin-file-input" placeholder="Nombre de usuario premium...">
+        <button class="auth-btn offline-btn" id="friendSearchBtn">Buscar</button>
+      </div>
+      <div id="friendSearchResults"></div>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" id="closeAddFriendModalBtn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="instanceDetailModal">
     <div class="modal-card instance-detail-modal-card">
       <div class="instance-detail-banner" id="instanceDetailBanner">
@@ -2774,6 +3041,22 @@
     const { ipcRenderer } = require('electron');
 
     const CHANGELOG_ENTRIES = [
+  {
+    version: 'v1.1.17',
+    date: '13 de septiembre de 2026',
+    added: [
+      'Pantalla de carga agregada',
+      'Pantalla principal con instancias',
+      'Ajustes de RAM automáticos a tu equipo',
+      'Lanzamiento oficial al público'
+    ],
+    improved: [
+      'Mejora en todas las interfaces del launcher',
+      'Sistema de mensajería mejorado',
+      'Sistema de actualizaciones automáticas mejorado'
+    ],
+    fixed: []
+  },
   {
     version: 'v1.0.7',
     date: '1 de septiembre de 2026',
@@ -3075,7 +3358,7 @@
         requiredJavaMajor: 17
       },
       'SPYGYSMP': {
-        id: 'mi-modpack-26.2',
+        id: 'spygysmp',
         name: 'SpyGy SMP',
         description: 'Modpack Vanilla+ para jugar con amigos.',
         image: 'assets/instances/spygy.png',
@@ -3503,8 +3786,8 @@
       selectedInstance = appConfig.instances.some((i) => i.id === appConfig.selectedInstance)
         ? appConfig.selectedInstance
         : appConfig.instances[0].id;
-      renderHomeInstanceCards();
     }
+    renderHomeInstanceCards();
 
     const addInstanceBtn = document.getElementById('addInstanceBtn');
     const addInstanceModal = document.getElementById('addInstanceModal');
@@ -4117,9 +4400,10 @@
     const friendRequestsList = document.getElementById('friendRequestsList');
     const friendsList = document.getElementById('friendsList');
     const chatCard = document.getElementById('chatCard');
-    const chatEmptyState = document.getElementById('chatEmptyState');
+    const friendsManagementPanel = document.getElementById('friendsManagementPanel');
     const chatWithName = document.getElementById('chatWithName');
     const chatMessages = document.getElementById('chatMessages');
+    const typingIndicator = document.getElementById('typingIndicator');
     const chatInput = document.getElementById('chatInput');
     const chatSendBtn = document.getElementById('chatSendBtn');
 
@@ -4312,8 +4596,168 @@
 
     const socialFriendsNavBtn = document.getElementById('socialFriendsNavBtn');
     socialFriendsNavBtn.addEventListener('click', () => {
+      closeChat();
+    });
+
+    // --- Estado "en línea" (usando el launcher) de los amigos ---
+    const ONLINE_THRESHOLD_MS = 3 * 60 * 1000;
+    const friendStatusMap = new Map();
+    const friendStatusUnsubscribes = new Map();
+
+    function isFriendOnline(uuid) {
+      const lastSeen = friendStatusMap.get(uuid);
+      if (!lastSeen) return false;
+      return Date.now() - lastSeen.toMillis() < ONLINE_THRESHOLD_MS;
+    }
+
+    function subscribeFriendStatus(uuid) {
+      if (friendStatusUnsubscribes.has(uuid) || !db) return;
+      const unsub = db.collection('users').doc(uuid).onSnapshot((doc) => {
+        friendStatusMap.set(uuid, doc.data()?.lastSeen || null);
+        renderFriendsManagementList();
+      }, (err) => console.error('Error escuchando estado de amigo:', err));
+      friendStatusUnsubscribes.set(uuid, unsub);
+    }
+
+    // --- "Escribiendo..." y mensajes no leídos por chat ---
+    function getChatId(uuidA, uuidB) {
+      return [uuidA, uuidB].sort().join('_');
+    }
+
+    const TYPING_THRESHOLD_MS = 5000;
+    const friendChatMetaMap = new Map();
+    const friendChatUnsubscribes = new Map();
+
+    function subscribeFriendChatMeta(friendUuid) {
+      if (friendChatUnsubscribes.has(friendUuid) || !db || !userSession) return;
+      const myUuid = normalizeUuid(userSession.uuid);
+      const chatId = getChatId(myUuid, friendUuid);
+
+      const unsub = db.collection('chats').doc(chatId).onSnapshot((doc) => {
+        const data = doc.data() || {};
+        const typingTs = data.typing?.[friendUuid];
+        const isTyping = !!typingTs && (Date.now() - typingTs.toMillis() < TYPING_THRESHOLD_MS);
+
+        const lastMessageAt = data.lastMessageAt || null;
+        const lastReadByMe = data.lastRead?.[myUuid] || null;
+        const hasUnread = !!(lastMessageAt && data.lastMessageBy === friendUuid &&
+          (!lastReadByMe || lastMessageAt.toMillis() > lastReadByMe.toMillis()));
+
+        friendChatMetaMap.set(friendUuid, { isTyping, hasUnread });
+        renderFriendsList();
+        renderFriendsManagementList();
+        if (currentChatFriendUuid === friendUuid) {
+          typingIndicator.classList.toggle('visible', isTyping);
+          if (isTyping) chatMessages.scrollTop = chatMessages.scrollHeight;
+          if (hasUnread) markChatAsRead(friendUuid);
+        }
+      }, (err) => console.error('Error escuchando metadatos del chat:', err));
+
+      friendChatUnsubscribes.set(friendUuid, unsub);
+    }
+
+    function markChatAsRead(friendUuid) {
+      if (!db || !userSession) return;
+      const myUuid = normalizeUuid(userSession.uuid);
+      const chatId = getChatId(myUuid, friendUuid);
+      db.collection('chats').doc(chatId).set({
+        lastRead: { [myUuid]: firebase.firestore.FieldValue.serverTimestamp() }
+      }, { merge: true }).catch((err) => console.error('No se pudo marcar el chat como leído:', err));
+    }
+
+    let activeFriendsTab = 'online';
+    const friendsPanelCount = document.getElementById('friendsPanelCount');
+    const friendsPanelList = document.getElementById('friendsPanelList');
+
+    document.querySelectorAll('.friends-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        activeFriendsTab = tab.dataset.tab;
+        document.querySelectorAll('.friends-tab').forEach((t) => t.classList.toggle('active', t === tab));
+        renderFriendsManagementList();
+      });
+    });
+
+    function renderFriendsManagementList() {
+      if (!friendsPanelList) return;
+
+      friendsMap.forEach((_, uuid) => {
+        subscribeFriendStatus(uuid);
+        subscribeFriendChatMeta(uuid);
+      });
+
+      const allEntries = Array.from(friendsMap.entries());
+      const onlineEntries = allEntries.filter(([uuid]) => isFriendOnline(uuid));
+      const entries = activeFriendsTab === 'online' ? onlineEntries : allEntries;
+
+      friendsPanelCount.innerText = activeFriendsTab === 'online'
+        ? `Conectado — ${onlineEntries.length}`
+        : `Todos — ${allEntries.length}`;
+
+      if (entries.length === 0) {
+        friendsPanelList.innerHTML = `<p class="friends-panel-empty">${activeFriendsTab === 'online' ? 'Ninguno de tus amigos está usando el launcher ahora mismo.' : 'Aún no tienes amigos agregados.'}</p>`;
+        return;
+      }
+
+      friendsPanelList.innerHTML = entries.map(([uuid, name]) => {
+        const online = isFriendOnline(uuid);
+        const meta = friendChatMetaMap.get(uuid) || {};
+        const statusText = meta.isTyping ? 'Escribiendo...' : (online ? 'En línea — usando el launcher' : 'Desconectado');
+        return `
+          <div class="friends-panel-row">
+            <div class="friends-panel-avatar-wrap">
+              <img src="https://mc-heads.net/avatar/${uuid}/36" alt="${escapeHtml(name)}">
+              <span class="friends-status-dot${online ? ' online' : ''}"></span>
+            </div>
+            <div class="friends-panel-info">
+              <div class="name">${escapeHtml(name)}</div>
+              <div class="status${meta.isTyping ? ' typing' : ''}">${statusText}</div>
+            </div>
+            ${meta.hasUnread ? '<span class="unread-dot"></span>' : ''}
+            <button type="button" class="friends-panel-chat-btn" data-chat-uuid="${uuid}" data-chat-name="${escapeHtml(name)}" title="Chatear">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      friendsPanelList.querySelectorAll('[data-chat-uuid]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          openChat(btn.dataset.chatUuid, btn.dataset.chatName);
+        });
+      });
+    }
+
+    // Heartbeat: refresca lastSeen mientras el launcher esté abierto con sesión Microsoft
+    setInterval(() => {
+      if (userSession && userSession.type === 'microsoft' && db) {
+        upsertSocialUser();
+      }
+    }, 60000);
+
+    // --- Modal de Añadir amigo ---
+    const addFriendModal = document.getElementById('addFriendModal');
+    const openAddFriendModalBtn = document.getElementById('openAddFriendModalBtn');
+    const closeAddFriendModalBtn = document.getElementById('closeAddFriendModalBtn');
+
+    openAddFriendModalBtn.addEventListener('click', () => {
       friendSearchInput.value = '';
       friendSearchResults.innerHTML = '';
+      addFriendModal.classList.add('active');
+      setTimeout(() => friendSearchInput.focus(), 50);
+    });
+
+    closeAddFriendModalBtn.addEventListener('click', () => {
+      addFriendModal.classList.remove('active');
+    });
+
+    addFriendModal.addEventListener('click', (event) => {
+      if (event.target === addFriendModal) addFriendModal.classList.remove('active');
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && addFriendModal.classList.contains('active')) {
+        addFriendModal.classList.remove('active');
+      }
     });
 
     async function sendFriendRequest(toUuid, toName) {
@@ -4396,14 +4840,21 @@
         return;
       }
 
-      friendsList.innerHTML = Array.from(friendsMap.entries()).map(([uuid, name]) => `
-        <div class="friend-item${uuid === currentChatFriendUuid ? ' active' : ''}" data-chat-uuid="${uuid}" data-chat-name="${escapeHtml(name)}">
-          <div class="social-person">
-            <img src="https://mc-heads.net/avatar/${uuid}/32" alt="${escapeHtml(name)}">
-            <span>${escapeHtml(name)}</span>
+      friendsList.innerHTML = Array.from(friendsMap.entries()).map(([uuid, name]) => {
+        const meta = friendChatMetaMap.get(uuid) || {};
+        return `
+          <div class="friend-item${uuid === currentChatFriendUuid ? ' active' : ''}" data-chat-uuid="${uuid}" data-chat-name="${escapeHtml(name)}">
+            <div class="social-person">
+              <img src="https://mc-heads.net/avatar/${uuid}/32" alt="${escapeHtml(name)}">
+              <div class="friend-name-col">
+                <span>${escapeHtml(name)}</span>
+                ${meta.isTyping ? '<span class="friend-typing">Escribiendo...</span>' : ''}
+              </div>
+            </div>
+            ${meta.hasUnread ? '<span class="unread-dot"></span>' : ''}
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       friendsList.querySelectorAll('[data-chat-uuid]').forEach((row) => {
         row.addEventListener('click', () => {
@@ -4416,7 +4867,8 @@
       currentChatFriendUuid = friendUuid;
       chatWithName.innerText = `Chat con ${friendName}`;
       chatCard.style.display = 'flex';
-      chatEmptyState.style.display = 'none';
+      friendsManagementPanel.style.display = 'none';
+      typingIndicator.classList.remove('visible');
 
       friendsList.querySelectorAll('.friend-item').forEach((row) => {
         row.classList.toggle('active', row.dataset.chatUuid === friendUuid);
@@ -4424,6 +4876,12 @@
 
       const myUuid = normalizeUuid(userSession.uuid);
       const chatId = [myUuid, friendUuid].sort().join('_');
+
+      subscribeFriendChatMeta(friendUuid);
+      markChatAsRead(friendUuid);
+
+      const friendMeta = friendChatMetaMap.get(friendUuid);
+      if (friendMeta?.isTyping) typingIndicator.classList.add('visible');
 
       if (chatUnsubscribe) chatUnsubscribe();
 
@@ -4437,6 +4895,7 @@
             return `<div class="chat-bubble ${mine ? 'mine' : 'theirs'}">${escapeHtml(m.text || '')}</div>`;
           }).join('');
           chatMessages.scrollTop = chatMessages.scrollHeight;
+          markChatAsRead(friendUuid);
         }, (err) => {
           console.error('Error escuchando el chat:', err);
         });
@@ -4449,15 +4908,41 @@
         chatUnsubscribe = null;
       }
       chatCard.style.display = 'none';
-      chatEmptyState.style.display = 'flex';
+      friendsManagementPanel.style.display = 'flex';
       chatMessages.innerHTML = '';
+      typingIndicator.classList.remove('visible');
       friendsList.querySelectorAll('.friend-item').forEach((row) => row.classList.remove('active'));
+      renderFriendsManagementList();
     }
 
     const chatCloseBtn = document.getElementById('chatCloseBtn');
     if (chatCloseBtn) {
       chatCloseBtn.addEventListener('click', closeChat);
     }
+
+    let typingClearTimeout = null;
+
+    function clearMyTypingFlag() {
+      if (!currentChatFriendUuid || !db) return;
+      const myUuid = normalizeUuid(userSession.uuid);
+      const chatId = getChatId(myUuid, currentChatFriendUuid);
+      db.collection('chats').doc(chatId).set({
+        typing: { [myUuid]: firebase.firestore.FieldValue.delete() }
+      }, { merge: true }).catch(() => {});
+    }
+
+    chatInput.addEventListener('input', () => {
+      if (!currentChatFriendUuid || !db) return;
+      const myUuid = normalizeUuid(userSession.uuid);
+      const chatId = getChatId(myUuid, currentChatFriendUuid);
+
+      db.collection('chats').doc(chatId).set({
+        typing: { [myUuid]: firebase.firestore.FieldValue.serverTimestamp() }
+      }, { merge: true }).catch(() => {});
+
+      clearTimeout(typingClearTimeout);
+      typingClearTimeout = setTimeout(clearMyTypingFlag, 3000);
+    });
 
     function sendChatMessage() {
       const text = chatInput.value.trim();
@@ -4474,6 +4959,13 @@
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       }).catch((err) => console.error('No se pudo enviar el mensaje:', err));
 
+      db.collection('chats').doc(chatId).set({
+        lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastMessageBy: myUuid,
+        typing: { [myUuid]: firebase.firestore.FieldValue.delete() }
+      }, { merge: true }).catch(() => {});
+
+      clearTimeout(typingClearTimeout);
       chatInput.value = '';
     }
 
@@ -4515,6 +5007,7 @@
             }
           });
           renderFriendsList();
+          renderFriendsManagementList();
         }, (err) => console.error('Error escuchando amigos:', err));
     }
 
