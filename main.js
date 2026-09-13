@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
+const https = require('https');
+const extractZip = require('extract-zip');
 const { exec } = require('child_process');
 const { promisify } = require('util');
 const { Auth } = require('msmc');
@@ -502,24 +504,135 @@ ipcMain.handle('set-active-cape', async (event, { accessToken, capeId }) => {
   }
 });
 
-async function checkJavaInstalled() {
-  try {
-    await execAsync('java -version');
-    return true;
-  } catch (err) {
-    return false;
+function downloadFileWithProgress(url, destPath, onProgress) {
+  return new Promise((resolve, reject) => {
+    const request = (currentUrl, redirectsLeft) => {
+      https.get(currentUrl, (response) => {
+        if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+          if (redirectsLeft <= 0) {
+            reject(new Error('Demasiadas redirecciones al descargar el archivo.'));
+            return;
+          }
+          response.resume();
+          request(response.headers.location, redirectsLeft - 1);
+          return;
+        }
+
+        if (response.statusCode !== 200) {
+          reject(new Error(`Descarga falló con código ${response.statusCode}`));
+          return;
+        }
+
+        const totalBytes = parseInt(response.headers['content-length'] || '0', 10);
+        let downloadedBytes = 0;
+        const fileStream = fs.createWriteStream(destPath);
+
+        response.on('data', (chunk) => {
+          downloadedBytes += chunk.length;
+          if (onProgress) onProgress(downloadedBytes, totalBytes);
+        });
+
+        response.pipe(fileStream);
+        fileStream.on('finish', () => fileStream.close(() => resolve()));
+        fileStream.on('error', reject);
+      }).on('error', reject);
+    };
+
+    request(url, 5);
+  });
+}
+
+function parseJavaMajorVersion(rawOutput) {
+  const match = rawOutput.match(/version "(\d+)(?:\.(\d+))?/);
+  if (!match) return null;
+  if (match[1] === '1' && match[2]) {
+    return parseInt(match[2], 10);
   }
+  return parseInt(match[1], 10);
+}
+
+async function getInstalledJavaMajorVersion() {
+  try {
+    const { stderr, stdout } = await execAsync('java -version');
+    return parseJavaMajorVersion(stderr || stdout || '');
+  } catch (err) {
+    return null;
+  }
+}
+
+async function checkJavaInstalled() {
+  const major = await getInstalledJavaMajorVersion();
+  return major !== null;
 }
 
 ipcMain.handle('check-java-installed', async () => {
   return checkJavaInstalled();
 });
 
+ipcMain.handle('get-java-info', async () => {
+  const majorVersion = await getInstalledJavaMajorVersion();
+  return { installed: majorVersion !== null, majorVersion };
+});
+
 ipcMain.handle('open-java-download', () => {
   shell.openExternal('https://www.java.com/es/download/');
 });
 
-ipcMain.handle('launch-game', async (event, { userSession, instance, ram }) => {
+function findBundledJavaExe(javaHomeDir) {
+  try {
+    const entries = fs.readdirSync(javaHomeDir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        const candidate = path.join(javaHomeDir, entry.name, 'bin', 'java.exe');
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
+  } catch (err) {
+    // carpeta no existe todavía
+  }
+  return null;
+}
+
+async function ensureBundledJava(majorVersion) {
+  const javaHomeDir = path.join(FALCOM_DIR, 'java', String(majorVersion));
+
+  const existing = findBundledJavaExe(javaHomeDir);
+  if (existing) return existing;
+
+  mainWindow?.webContents.send('launch-status', {
+    state: 'downloading-java',
+    message: `Descargando Java ${majorVersion} (no se detectó ninguno instalado)...`
+  });
+
+  const apiUrl = `https://api.adoptium.net/v3/binary/latest/${majorVersion}/ga/windows/x64/jre/hotspot/normal/eclipse`;
+  const zipPath = path.join(app.getPath('temp'), `java-${majorVersion}-jre.zip`);
+
+  await downloadFileWithProgress(apiUrl, zipPath, (downloaded, total) => {
+    mainWindow?.webContents.send('launch-progress', {
+      type: 'java',
+      task: downloaded,
+      total: total || downloaded
+    });
+  });
+
+  fs.mkdirSync(javaHomeDir, { recursive: true });
+  await extractZip(zipPath, { dir: javaHomeDir });
+
+  try {
+    fs.unlinkSync(zipPath);
+  } catch (err) {
+    console.error('No se pudo borrar el zip temporal de Java:', err);
+  }
+
+  const exePath = findBundledJavaExe(javaHomeDir);
+  if (!exePath) {
+    throw new Error('No se pudo preparar Java automáticamente. Instálalo manualmente desde https://www.java.com/es/download/');
+  }
+
+  return exePath;
+}
+
+ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVersion, customVersion, downloadUrl, requiredJavaMajor }) => {
   if (gameIsRunning) {
     return { success: false, error: 'Minecraft ya se está ejecutando.' };
   }
@@ -527,8 +640,19 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram }) => {
     return { success: false, error: 'No hay sesión activa.' };
   }
 
-  const hasJava = await checkJavaInstalled();
-  if (!hasJava) {
+  const installedJavaMajor = await getInstalledJavaMajorVersion();
+  let javaPathOverride = null;
+
+  if (requiredJavaMajor) {
+    if (installedJavaMajor === null || installedJavaMajor < requiredJavaMajor) {
+      try {
+        javaPathOverride = await ensureBundledJava(requiredJavaMajor);
+      } catch (err) {
+        mainWindow?.webContents.send('launch-status', { state: 'error', message: err.message });
+        return { success: false, error: err.message };
+      }
+    }
+  } else if (installedJavaMajor === null) {
     const message = 'No se encontró Java en este equipo. Instala Java (17 o superior) desde https://www.java.com/es/download/ e inténtalo de nuevo.';
     mainWindow?.webContents.send('launch-status', { state: 'error', message });
     return { success: false, error: message };
@@ -557,26 +681,61 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram }) => {
     const maxMB = Math.round(maxGB * 1024);
     const minMB = Math.max(1024, Math.floor(maxMB / 2));
 
-    const versionJarPath = path.join(instancePath, 'versions', '1.20.1', '1.20.1.jar');
-    const alreadyInstalled = fs.existsSync(versionJarPath);
+    const resolvedMcVersion = mcVersion || '1.20.1';
+    const checkVersionId = customVersion || resolvedMcVersion;
+    const versionJsonPath = path.join(instancePath, 'versions', checkVersionId, `${checkVersionId}.json`);
+    const alreadyInstalled = fs.existsSync(versionJsonPath);
 
     gameIsRunning = true;
     mainWindow?.webContents.send('launch-log', `[LAUNCHER] Carpeta de la instancia: ${instancePath}`);
+
+    if (!alreadyInstalled && downloadUrl) {
+      mainWindow?.webContents.send('launch-status', {
+        state: 'downloading-pack',
+        message: 'Descargando modpack (primera vez)...'
+      });
+
+      const zipPath = path.join(app.getPath('temp'), `${instanceName}-pack.zip`);
+
+      await downloadFileWithProgress(downloadUrl, zipPath, (downloaded, total) => {
+        mainWindow?.webContents.send('launch-progress', {
+          type: 'pack',
+          task: downloaded,
+          total: total || downloaded
+        });
+      });
+
+      mainWindow?.webContents.send('launch-status', {
+        state: 'downloading-pack',
+        message: 'Extrayendo modpack...'
+      });
+
+      await extractZip(zipPath, { dir: instancePath });
+
+      try {
+        fs.unlinkSync(zipPath);
+      } catch (err) {
+        console.error('No se pudo borrar el zip temporal del modpack:', err);
+      }
+    }
+
     mainWindow?.webContents.send('launch-status', {
       state: alreadyInstalled ? 'launching' : 'downloading',
       message: alreadyInstalled
         ? 'Iniciando Minecraft...'
-        : 'Descargando Minecraft 1.20.1 (primera vez)...'
+        : `Descargando Minecraft ${resolvedMcVersion} (primera vez)...`
     });
 
     const opts = {
       authorization,
       root: instancePath,
       version: {
-        number: '1.20.1',
-        type: 'release'
+        number: resolvedMcVersion,
+        type: 'release',
+        custom: customVersion || undefined
       },
-      memory: { max: `${maxMB}M`, min: `${minMB}M` }
+      memory: { max: `${maxMB}M`, min: `${minMB}M` },
+      javaPath: javaPathOverride || undefined
     };
 
     await mcLauncher.launch(opts);

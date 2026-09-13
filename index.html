@@ -205,12 +205,32 @@
       display: flex;
       flex-direction: column;
       min-width: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    .content-area::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .content-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .content-area::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 4px;
+    }
+
+    .content-area::-webkit-scrollbar-thumb:hover {
+      background: var(--text-faint);
     }
 
     .view {
       display: none;
       flex: 1;
       flex-direction: column;
+      min-height: 0;
     }
 
     .view.active {
@@ -554,6 +574,11 @@
       margin-bottom: 20px;
     }
 
+    #view-storage .view-inner-wide {
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
     .wardrobe-layout {
       display: flex;
       gap: 24px;
@@ -808,6 +833,14 @@
       border-radius: 8px;
       padding: 8px 10px;
       font-size: 0.85rem;
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
+    .ram-exact-input-group input::-webkit-outer-spin-button,
+    .ram-exact-input-group input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
 
     .ram-presets {
@@ -1421,6 +1454,42 @@
     }
 
     .instance-tile-add {
+      background: var(--bg-card);
+      border: 1px dashed var(--border-strong);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 260px;
+      color: var(--text-faint);
+    }
+
+    .instance-tile-add:hover {
+      border-color: var(--text-primary);
+      color: var(--text-primary);
+    }
+
+    .instance-tile-add-icon {
+      font-size: 2rem;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--text-faint);
+    }
+
+    .instance-tile-add:hover .instance-tile-add-icon {
+      color: var(--text-primary);
+    }
+
+    .instance-tile-add span {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .instance-tile-add {
       align-items: center;
       justify-content: center;
       text-align: center;
@@ -1488,15 +1557,19 @@
     }
 
     .selected-instance-label {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       color: var(--text-faint);
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
+      text-align: center;
+      line-height: 1.35;
+      gap: 0;
     }
 
     .selected-instance-label strong {
       color: var(--text-primary);
+      font-size: 0.85rem;
     }
 
     .social-search-row {
@@ -1509,8 +1582,7 @@
     }
 
     .search-result-item,
-    .friend-request-item,
-    .friend-item {
+    .friend-request-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -1520,10 +1592,28 @@
     }
 
     .search-result-item:last-child,
-    .friend-request-item:last-child,
-    .friend-item:last-child {
+    .friend-request-item:last-child {
       border-bottom: none;
       padding-bottom: 0;
+    }
+
+    .friend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .friend-item:hover {
+      background: var(--bg-input);
+    }
+
+    .friend-item.active {
+      background: var(--bg-input);
     }
 
     .social-person {
@@ -1550,35 +1640,229 @@
       gap: 6px;
     }
 
-    #view-social .view-inner-wide {
-      max-width: 1500px;
-    }
-
-    .social-columns {
+    .social-shell {
+      flex: 1;
+      min-height: 0;
       display: flex;
+      align-items: stretch;
+    }
+
+    .social-rail {
+      width: 300px;
+      flex-shrink: 0;
+      min-height: 0;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border-medium);
+      display: flex;
+      flex-direction: column;
       gap: 20px;
-      align-items: flex-start;
-      margin-top: 20px;
+      padding: 20px 16px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
     }
 
-    .social-col {
+    .social-rail::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .social-rail::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    .social-rail-search {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .social-search-trigger {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      color: var(--text-faint);
+      border-radius: 6px;
+      padding: 9px 12px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      text-align: left;
+    }
+
+    .social-search-trigger:hover {
+      border-color: var(--text-primary);
+      color: var(--text-primary);
+    }
+
+    .social-search-trigger svg {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+
+    .social-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 9px 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      text-align: left;
+    }
+
+    .social-nav-item svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .social-nav-item:hover {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    .social-nav-item.active {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    .quick-switcher-card {
+      width: 480px;
+      max-width: 90vw;
+      padding: 16px;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .quick-switcher-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 13px 14px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .quick-switcher-list {
+      max-height: 340px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    }
+
+    .quick-switcher-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .quick-switcher-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    .quick-switcher-heading {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-faint);
+      font-weight: 700;
+      padding: 6px 6px 4px;
+    }
+
+    .quick-switcher-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .quick-switcher-item:hover {
+      background: var(--bg-input);
+    }
+
+    .quick-switcher-item img {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      image-rendering: pixelated;
+    }
+
+    .quick-switcher-item span {
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .quick-switcher-empty {
+      padding: 12px 6px;
+      color: var(--text-faint);
+      font-size: 0.85rem;
+    }
+
+    .social-rail-search input {
       flex: 1;
       min-width: 0;
     }
 
-    .social-col:first-child {
-      flex: 0 0 360px;
+    .social-rail-heading {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-faint);
+      margin-bottom: 10px;
+      font-weight: 700;
     }
 
-    .social-col:last-child {
+    .social-rail-section {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .social-rail-friends {
+      flex: 1;
+    }
+
+    .social-chat-area {
       flex: 1;
       min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 24px;
+    }
+
+    .social-side-panel {
+      width: 300px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border-medium);
+      background: var(--bg-card);
     }
 
     .chat-card {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      height: 560px;
+      min-height: 0;
     }
 
     .chat-card-header {
@@ -1586,6 +1870,7 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 14px;
+      flex-shrink: 0;
     }
 
     .chat-card-header h3 {
@@ -1607,6 +1892,14 @@
     .chat-close-btn:hover {
       background: var(--bg-input);
       color: var(--text-primary);
+    }
+
+    .chat-empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
 
     .chat-messages {
@@ -1655,6 +1948,7 @@
     .chat-input-row {
       display: flex;
       gap: 10px;
+      flex-shrink: 0;
     }
 
     .chat-input-row input {
@@ -1994,7 +2288,7 @@
 
   <header>
     <div class="logo"><img id="headerLogoImg" src="assets/aranasinfondo.png" alt="Falcom logo"><span class="logo-text"><span class="logo-bold">Spyder</span> <span class="logo-thin">CLIENT</span></span></div>
-    <span class="version-tag">v1.1.15</span>
+    <span class="version-tag">v1.1.16</span>
   </header>
 
   <div class="main-layout">
@@ -2233,55 +2527,58 @@
       </div>
 
       <div class="view" id="view-social">
-        <div class="view-inner-social">
-          <h2>Social</h2>
+        <div class="placeholder-card" id="socialLocked" style="margin: 60px auto; max-width: 480px;">
+          <h2>Función Premium</h2>
+          <p>Necesitas iniciar sesión con una cuenta de Microsoft (Minecraft Java original) para usar Social.</p>
+        </div>
 
-          <div class="placeholder-card" id="socialLocked">
-            <h2>Función Premium</h2>
-            <p>Necesitas iniciar sesión con una cuenta de Microsoft (Minecraft Java original) para usar Social.</p>
-          </div>
+        <div class="social-shell" id="socialUnlocked" style="display: none;">
+          <div class="social-rail">
+            <button type="button" class="social-search-trigger" id="socialSearchTrigger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              Busca o inicia una conversación
+            </button>
 
-          <div id="socialUnlocked" style="display: none;">
-            <div class="hw-card">
-              <h3>Buscar jugadores</h3>
-              <div class="social-search-row">
-                <input type="text" id="friendSearchInput" class="skin-file-input" placeholder="Nombre de usuario premium...">
-                <button class="auth-btn offline-btn" id="friendSearchBtn">Buscar</button>
-              </div>
-              <div id="friendSearchResults" style="margin-top: 10px;"></div>
+            <button type="button" class="social-nav-item active" id="socialFriendsNavBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Amigos
+            </button>
+
+            <div class="social-rail-search" id="socialSearchBox">
+              <input type="text" id="friendSearchInput" class="skin-file-input" placeholder="Buscar jugador...">
+              <button class="auth-btn offline-btn" id="friendSearchBtn">Buscar</button>
+            </div>
+            <div id="friendSearchResults"></div>
+
+            <div class="social-rail-section">
+              <h4 class="social-rail-heading">Solicitudes recibidas</h4>
+              <div id="friendRequestsList"><p class="ram-hint">No tienes solicitudes pendientes.</p></div>
             </div>
 
-            <div class="social-columns">
-              <div class="social-col social-col-fixed">
-                <div class="hw-card">
-                  <h3>Solicitudes recibidas</h3>
-                  <div id="friendRequestsList"><p class="ram-hint">No tienes solicitudes pendientes.</p></div>
-                </div>
-
-                <div class="hw-card">
-                  <h3>Mis amigos</h3>
-                  <div id="friendsList"><p class="ram-hint">Aún no tienes amigos agregados.</p></div>
-                </div>
-              </div>
-
-              <div class="social-col social-col-chat">
-                <div class="hw-card chat-card" id="chatCard" style="display: none;">
-                  <div class="chat-card-header">
-                    <h3 id="chatWithName">Chat</h3>
-                    <button class="chat-close-btn" id="chatCloseBtn" title="Cerrar chat">✕</button>
-                  </div>
-                  <div class="chat-messages" id="chatMessages"></div>
-                  <div class="chat-input-row">
-                    <input type="text" id="chatInput" class="skin-file-input" placeholder="Escribe un mensaje...">
-                    <button class="play-btn" id="chatSendBtn" style="padding: 10px 22px;">Enviar</button>
-                  </div>
-                </div>
-                <div class="hw-card" id="chatEmptyState">
-                  <p class="ram-hint">Selecciona un amigo de la lista para chatear.</p>
-                </div>
-              </div>
+            <div class="social-rail-section social-rail-friends">
+              <h4 class="social-rail-heading">Mensajes Directos</h4>
+              <div id="friendsList"><p class="ram-hint">Aún no tienes amigos agregados.</p></div>
             </div>
           </div>
+
+          <div class="social-chat-area">
+            <div class="chat-card" id="chatCard" style="display: none;">
+              <div class="chat-card-header">
+                <h3 id="chatWithName">Chat</h3>
+                <button class="chat-close-btn" id="chatCloseBtn" title="Cerrar chat">✕</button>
+              </div>
+              <div class="chat-messages" id="chatMessages"></div>
+              <div class="chat-input-row">
+                <input type="text" id="chatInput" class="skin-file-input" placeholder="Escribe un mensaje...">
+                <button class="play-btn" id="chatSendBtn" style="padding: 10px 22px;">Enviar</button>
+              </div>
+            </div>
+            <div class="chat-empty-state" id="chatEmptyState">
+              <p class="ram-hint">Selecciona un amigo de la lista para chatear.</p>
+            </div>
+          </div>
+
+          <div class="social-side-panel"></div>
         </div>
       </div>
 
@@ -2410,7 +2707,7 @@
   <div class="modal-overlay" id="javaMissingModal">
     <div class="modal-card">
       <h3>Falta Java</h3>
-      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+      <p style="color: var(--text-secondary); font-size: 0.9rem;" id="javaMissingText">
         No se detectó Java en este equipo. Minecraft necesita Java (17 o superior) para poder ejecutarse.
       </p>
       <div class="modal-actions">
@@ -2428,6 +2725,13 @@
         <button class="modal-btn cancel" id="closeDeleteInstanceModalBtn">Cancelar</button>
         <button class="modal-btn confirm" id="confirmDeleteInstanceBtn" style="background: #ff6b6b; color: #fff;">Eliminar</button>
       </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="quickSwitcherModal">
+    <div class="modal-card quick-switcher-card">
+      <input type="text" id="quickSwitcherInput" class="quick-switcher-input" placeholder="¿A dónde te gustaría ir?" autocomplete="off">
+      <div class="quick-switcher-list" id="quickSwitcherList"></div>
     </div>
   </div>
 
@@ -2760,11 +3064,25 @@
     let selectedInstance = null;
 
     const KNOWN_INSTANCES = {
-      'VANILLA1201': {
+      'VANILLA': {
         id: 'vanilla-1.20.1',
         name: 'Minecraft 1.20.1 Vanilla',
         description: 'Minecraft Vanilla, sin mods, tal como se juega originalmente.',
-        image: 'assets/instances/minecraft-hero.png'
+        image: 'assets/instances/minecraft-hero.png',
+        mcVersion: '1.20.1',
+        customVersion: null,
+        downloadUrl: null,
+        requiredJavaMajor: 17
+      },
+      'SPYGYSMP': {
+        id: 'mi-modpack-26.2',
+        name: 'SpyGy SMP',
+        description: 'Modpack Vanilla+ para jugar con amigos.',
+        image: 'assets/instances/spygy.png',
+        mcVersion: '26.2',
+        customVersion: 'fabric-loader-0.19.3-26.2',
+        downloadUrl: 'https://github.com/Danxx0504/modpacks/releases/download/v1.0.0/SpyGySMPv1.zip',
+        requiredJavaMajor: 25
       }
     };
 
@@ -2811,6 +3129,7 @@
         return;
       }
       selectedInstanceLabel.style.display = 'flex';
+      selectedInstanceLabel.innerHTML = `Instancia Seleccionada: <strong>${inst.name}</strong>`;
     }
 
     function renderInstanceBannerHtml(image) {
@@ -2868,6 +3187,15 @@
         tile.addEventListener('click', () => openInstanceDetailModal(inst));
         instanceCardsGrid.appendChild(tile);
       });
+
+      const addTile = document.createElement('div');
+      addTile.className = 'instance-tile-add';
+      addTile.innerHTML = `
+        <div class="instance-tile-add-icon">+</div>
+        <span>Agregar Instancia</span>
+      `;
+      addTile.addEventListener('click', () => addInstanceBtn.click());
+      instanceCardsGrid.appendChild(addTile);
 
       updateSelectedInstanceLabel();
     }
@@ -3039,10 +3367,28 @@
         statDiskUsed.innerText = `${(usedBytes / 1024 ** 3).toFixed(2)} GB`;
         statDiskFree.innerText = `${diskInfo.free.toFixed(2)} GB`;
 
-        segLauncher.style.width = `${(launcherBytes / totalBytes) * 100}%`;
-        segInstances.style.width = `${(instancesTotalBytes / totalBytes) * 100}%`;
-        segOther.style.width = `${(otherBytes / totalBytes) * 100}%`;
-        segFree.style.width = `${(freeBytes / totalBytes) * 100}%`;
+        const rawLauncherPct = (launcherBytes / totalBytes) * 100;
+        const rawInstancesPct = (instancesTotalBytes / totalBytes) * 100;
+        const rawFreePct = (freeBytes / totalBytes) * 100;
+        const rawOtherPct = Math.max(0, 100 - rawLauncherPct - rawInstancesPct - rawFreePct);
+
+        const MIN_VISIBLE_PCT = 1.2;
+        const launcherPct = launcherBytes > 0 ? Math.max(rawLauncherPct, MIN_VISIBLE_PCT) : 0;
+        const instancesPct = instancesTotalBytes > 0 ? Math.max(rawInstancesPct, MIN_VISIBLE_PCT) : 0;
+
+        const addedExtra = (launcherPct - rawLauncherPct) + (instancesPct - rawInstancesPct);
+        const otherFreeTotal = rawOtherPct + rawFreePct;
+        const otherPct = otherFreeTotal > 0
+          ? Math.max(0, rawOtherPct - addedExtra * (rawOtherPct / otherFreeTotal))
+          : rawOtherPct;
+        const freePct = otherFreeTotal > 0
+          ? Math.max(0, rawFreePct - addedExtra * (rawFreePct / otherFreeTotal))
+          : rawFreePct;
+
+        segLauncher.style.width = `${launcherPct}%`;
+        segInstances.style.width = `${instancesPct}%`;
+        segOther.style.width = `${otherPct}%`;
+        segFree.style.width = `${freePct}%`;
       } else {
         diskPercent.innerText = '-';
         diskDriveLabel.innerText = '-';
@@ -3184,6 +3530,12 @@
       addInstanceModal.classList.remove('active');
     });
 
+    instanceKeyInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !confirmAddInstanceBtn.disabled) {
+        confirmAddInstanceBtn.click();
+      }
+    });
+
     function showInstanceKeyError(text) {
       instanceKeySuccess.style.display = 'none';
       instanceKeyError.innerText = text;
@@ -3218,6 +3570,7 @@
     });
 
     const javaMissingModal = document.getElementById('javaMissingModal');
+    const javaMissingText = document.getElementById('javaMissingText');
     const closeJavaMissingModalBtn = document.getElementById('closeJavaMissingModalBtn');
     const downloadJavaBtn = document.getElementById('downloadJavaBtn');
 
@@ -3395,11 +3748,8 @@
         return;
       }
 
-      const hasJava = await ipcRenderer.invoke('check-java-installed');
-      if (!hasJava) {
-        javaMissingModal.classList.add('active');
-        return;
-      }
+      const instanceInfo = INSTANCE_BY_ID[selectedInstance];
+      const requiredJavaMajor = instanceInfo?.requiredJavaMajor || 17;
 
       launchBtn.disabled = true;
       launchBtn.innerText = 'Iniciando...';
@@ -3408,7 +3758,11 @@
       const result = await ipcRenderer.invoke('launch-game', {
         userSession,
         instance: selectedInstance,
-        ram: appConfig.ram
+        ram: appConfig.ram,
+        mcVersion: instanceInfo?.mcVersion || '1.20.1',
+        customVersion: instanceInfo?.customVersion || null,
+        downloadUrl: instanceInfo?.downloadUrl || null,
+        requiredJavaMajor
       });
 
       if (!result.success) {
@@ -3420,8 +3774,8 @@
     });
 
     ipcRenderer.on('launch-status', (event, { state, message }) => {
-      if (state === 'downloading') {
-        setStatusLabel('Descargando Minecraft 1.20.1...');
+      if (state === 'downloading' || state === 'downloading-pack' || state === 'downloading-java') {
+        setStatusLabel(message || 'Descargando...');
         launchProgressBar.classList.add('indeterminate');
       } else if (state === 'launching') {
         setStatusLabel('Iniciando Minecraft...');
@@ -3438,7 +3792,7 @@
     });
 
     ipcRenderer.on('launch-progress', (event, { type, task, total }) => {
-      setStatusLabel(`Descargando Minecraft 1.20.1... (${type || 'archivos'})`);
+      setStatusLabel(`Descargando... (${type || 'archivos'})`);
       if (total > 0) {
         const percent = (task / total) * 100;
         updateProgressBar(percent);
@@ -3889,6 +4243,78 @@
     friendSearchInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') searchPremiumUser();
     });
+    friendSearchInput.addEventListener('input', () => {
+      if (!friendSearchInput.value.trim()) {
+        friendSearchResults.innerHTML = '';
+      }
+    });
+
+    const socialSearchTrigger = document.getElementById('socialSearchTrigger');
+    const quickSwitcherModal = document.getElementById('quickSwitcherModal');
+    const quickSwitcherInput = document.getElementById('quickSwitcherInput');
+    const quickSwitcherList = document.getElementById('quickSwitcherList');
+
+    function renderQuickSwitcherList(filterText = '') {
+      const term = filterText.trim().toLowerCase();
+      const entries = Array.from(friendsMap.entries()).filter(([, name]) =>
+        name.toLowerCase().includes(term)
+      );
+
+      if (entries.length === 0) {
+        quickSwitcherList.innerHTML = '<div class="quick-switcher-empty">No se encontraron amigos.</div>';
+        return;
+      }
+
+      quickSwitcherList.innerHTML = `
+        <div class="quick-switcher-heading">Mensajes directos</div>
+        ${entries.map(([uuid, name]) => `
+          <div class="quick-switcher-item" data-uuid="${uuid}" data-name="${escapeHtml(name)}">
+            <img src="https://mc-heads.net/avatar/${uuid}/28" alt="${escapeHtml(name)}">
+            <span>${escapeHtml(name)}</span>
+          </div>
+        `).join('')}
+      `;
+
+      quickSwitcherList.querySelectorAll('[data-uuid]').forEach((item) => {
+        item.addEventListener('click', () => {
+          openChat(item.dataset.uuid, item.dataset.name);
+          closeQuickSwitcher();
+        });
+      });
+    }
+
+    function openQuickSwitcher() {
+      quickSwitcherInput.value = '';
+      renderQuickSwitcherList();
+      quickSwitcherModal.classList.add('active');
+      setTimeout(() => quickSwitcherInput.focus(), 50);
+    }
+
+    function closeQuickSwitcher() {
+      quickSwitcherModal.classList.remove('active');
+    }
+
+    socialSearchTrigger.addEventListener('click', openQuickSwitcher);
+
+    quickSwitcherInput.addEventListener('input', () => {
+      renderQuickSwitcherList(quickSwitcherInput.value);
+    });
+
+    quickSwitcherModal.addEventListener('click', (event) => {
+      if (event.target === quickSwitcherModal) closeQuickSwitcher();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && quickSwitcherModal.classList.contains('active')) {
+        closeQuickSwitcher();
+      }
+    });
+
+    const socialFriendsNavBtn = document.getElementById('socialFriendsNavBtn');
+    socialFriendsNavBtn.addEventListener('click', () => {
+      friendSearchInput.value = '';
+      friendSearchResults.innerHTML = '';
+    });
 
     async function sendFriendRequest(toUuid, toName) {
       if (!db || !userSession) return;
@@ -3971,20 +4397,17 @@
       }
 
       friendsList.innerHTML = Array.from(friendsMap.entries()).map(([uuid, name]) => `
-        <div class="friend-item">
+        <div class="friend-item${uuid === currentChatFriendUuid ? ' active' : ''}" data-chat-uuid="${uuid}" data-chat-name="${escapeHtml(name)}">
           <div class="social-person">
             <img src="https://mc-heads.net/avatar/${uuid}/32" alt="${escapeHtml(name)}">
             <span>${escapeHtml(name)}</span>
           </div>
-          <div class="social-actions">
-            <button class="auth-btn offline-btn" data-chat-uuid="${uuid}" data-chat-name="${escapeHtml(name)}">Chatear</button>
-          </div>
         </div>
       `).join('');
 
-      friendsList.querySelectorAll('[data-chat-uuid]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          openChat(btn.dataset.chatUuid, btn.dataset.chatName);
+      friendsList.querySelectorAll('[data-chat-uuid]').forEach((row) => {
+        row.addEventListener('click', () => {
+          openChat(row.dataset.chatUuid, row.dataset.chatName);
         });
       });
     }
@@ -3994,6 +4417,10 @@
       chatWithName.innerText = `Chat con ${friendName}`;
       chatCard.style.display = 'flex';
       chatEmptyState.style.display = 'none';
+
+      friendsList.querySelectorAll('.friend-item').forEach((row) => {
+        row.classList.toggle('active', row.dataset.chatUuid === friendUuid);
+      });
 
       const myUuid = normalizeUuid(userSession.uuid);
       const chatId = [myUuid, friendUuid].sort().join('_');
@@ -4022,8 +4449,9 @@
         chatUnsubscribe = null;
       }
       chatCard.style.display = 'none';
-      chatEmptyState.style.display = 'block';
+      chatEmptyState.style.display = 'flex';
       chatMessages.innerHTML = '';
+      friendsList.querySelectorAll('.friend-item').forEach((row) => row.classList.remove('active'));
     }
 
     const chatCloseBtn = document.getElementById('chatCloseBtn');
@@ -4094,7 +4522,7 @@
       const isPremium = userSession && userSession.type === 'microsoft';
 
       socialLocked.style.display = isPremium ? 'none' : 'block';
-      socialUnlocked.style.display = isPremium ? 'block' : 'none';
+      socialUnlocked.style.display = isPremium ? 'flex' : 'none';
 
       if (isPremium) {
         initFirebase();
