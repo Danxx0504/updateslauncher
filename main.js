@@ -5,9 +5,10 @@ const fsPromises = require('fs/promises');
 const https = require('https');
 const extractZip = require('extract-zip');
 const { exec } = require('child_process');
+const crypto = require('crypto');
 const { promisify } = require('util');
 const { Auth } = require('msmc');
-const { Client, Authenticator } = require('minecraft-launcher-core');
+const { Launch } = require('minecraft-java-core');
 const { Client: DiscordRPCClient } = require('@xhayper/discord-rpc');
 const { autoUpdater } = require('electron-updater');
 
@@ -29,8 +30,6 @@ function migrateLegacyDataFolder() {
 }
 
 migrateLegacyDataFolder();
-
-const mcLauncher = new Client();
 
 const DISCORD_CLIENT_ID = '1543391531019407420';
 const discordRpc = new DiscordRPCClient({ clientId: DISCORD_CLIENT_ID });
@@ -108,34 +107,56 @@ function setSplashStatus(text) {
   }
 }
 
-mcLauncher.on('debug', (e) => {
-  mainWindow?.webContents.send('launch-log', `[DEBUG] ${e}`);
+const mcLauncher = new Launch();
+
+mcLauncher.on('data', (line) => {
+  mainWindow?.webContents.send('launch-log', `[GAME] ${line}`);
 });
-mcLauncher.on('data', (e) => {
-  mainWindow?.webContents.send('launch-log', `[GAME] ${e}`);
+mcLauncher.on('progress', (progress, size) => {
+  mainWindow?.webContents.send('launch-progress', { type: 'archivos', task: progress, total: size });
 });
-mcLauncher.on('progress', (e) => {
-  mainWindow?.webContents.send('launch-progress', e);
+mcLauncher.on('extract', (name) => {
+  mainWindow?.webContents.send('launch-log', `[LAUNCHER] Extrayendo: ${name}`);
 });
-mcLauncher.on('close', (code) => {
+mcLauncher.on('patch', (line) => {
+  mainWindow?.webContents.send('launch-log', `[LOADER] ${line}`);
+});
+mcLauncher.on('close', () => {
   gameIsRunning = false;
   mainWindow?.webContents.send('launch-status', {
     state: 'closed',
-    message: `Minecraft se cerró (código ${code}).`
+    message: 'Minecraft se cerró.'
   });
   setDiscordActivity({
     details: 'En el launcher',
     state: 'Explorando Spyder Client'
   });
 });
+function describeLaunchError(err) {
+  const inner = err?.error instanceof Error ? err.error : err;
+  if (inner instanceof Error) {
+    return { message: inner.message, stack: inner.stack };
+  }
+  if (inner && typeof inner === 'object') {
+    try {
+      return { message: JSON.stringify(inner), stack: null };
+    } catch (e) {
+      return { message: String(inner), stack: null };
+    }
+  }
+  return { message: String(inner), stack: null };
+}
+
 mcLauncher.on('error', (err) => {
-  console.error('[mcLauncher] Error al lanzar Minecraft:', err);
+  const desc = describeLaunchError(err);
+  console.error('[launch] Error del proceso de Minecraft:', desc.message);
+  if (desc.stack) console.error(desc.stack);
   gameIsRunning = false;
   mainWindow?.webContents.send('launch-status', {
     state: 'error',
-    message: err?.message?.includes('ENOENT')
+    message: desc.message?.includes?.('ENOENT')
       ? 'No se encontró Java en este equipo. Instala Java (17 o superior) e inténtalo de nuevo.'
-      : `Error al lanzar Minecraft: ${err?.message || err}`
+      : `Error al lanzar Minecraft: ${desc.message}`
   });
 });
 
@@ -593,6 +614,13 @@ function findBundledJavaExe(javaHomeDir) {
   return null;
 }
 
+function buildOfflineUuid(username) {
+  const hash = crypto.createHash('md5').update(`OfflinePlayer:${username}`).digest();
+  hash[6] = (hash[6] & 0x0f) | 0x30;
+  hash[8] = (hash[8] & 0x3f) | 0x80;
+  return hash.toString('hex');
+}
+
 async function ensureBundledJava(majorVersion) {
   const javaHomeDir = path.join(FALCOM_DIR, 'java', String(majorVersion));
 
@@ -632,7 +660,7 @@ async function ensureBundledJava(majorVersion) {
   return exePath;
 }
 
-ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVersion, customVersion, downloadUrl, requiredJavaMajor }) => {
+ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVersion, loaderType, loaderBuild, downloadUrl, requiredJavaMajor }) => {
   if (gameIsRunning) {
     return { success: false, error: 'Minecraft ya se está ejecutando.' };
   }
@@ -644,7 +672,7 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVers
   let javaPathOverride = null;
 
   if (requiredJavaMajor) {
-    if (installedJavaMajor === null || installedJavaMajor < requiredJavaMajor) {
+    if (installedJavaMajor === null || installedJavaMajor !== requiredJavaMajor) {
       try {
         javaPathOverride = await ensureBundledJava(requiredJavaMajor);
       } catch (err) {
@@ -667,7 +695,10 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVers
       }
       authorization = userSession.mclcToken;
     } else {
-      authorization = Authenticator.getAuth(userSession.name);
+      authorization = {
+        uuid: buildOfflineUuid(userSession.name),
+        access_token: '0'
+      };
     }
 
     const instanceName = instance || 'default';
@@ -682,9 +713,11 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVers
     const minMB = Math.max(1024, Math.floor(maxMB / 2));
 
     const resolvedMcVersion = mcVersion || '1.20.1';
-    const checkVersionId = customVersion || resolvedMcVersion;
-    const versionJsonPath = path.join(instancePath, 'versions', checkVersionId, `${checkVersionId}.json`);
-    const alreadyInstalled = fs.existsSync(versionJsonPath);
+    const hasLoader = !!loaderType;
+    const versionMarkerPath = hasLoader
+      ? path.join(instancePath, 'mods')
+      : path.join(instancePath, 'versions', resolvedMcVersion);
+    const alreadyInstalled = fs.existsSync(versionMarkerPath);
 
     gameIsRunning = true;
     mainWindow?.webContents.send('launch-log', `[LAUNCHER] Carpeta de la instancia: ${instancePath}`);
@@ -720,25 +753,50 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVers
     }
 
     mainWindow?.webContents.send('launch-status', {
-      state: alreadyInstalled ? 'launching' : 'downloading',
+      state: 'downloading',
       message: alreadyInstalled
-        ? 'Iniciando Minecraft...'
-        : `Descargando Minecraft ${resolvedMcVersion} (primera vez)...`
+        ? 'Verificando archivos del juego...'
+        : `Descargando Minecraft ${resolvedMcVersion}${hasLoader ? ` + ${loaderType} ${loaderBuild}` : ''} (primera vez)...`
     });
 
-    const opts = {
-      authorization,
-      root: instancePath,
-      version: {
-        number: resolvedMcVersion,
-        type: 'release',
-        custom: customVersion || undefined
+    const launchOptions = {
+      path: instancePath,
+      authenticator: {
+        access_token: authorization.access_token,
+        client_token: authorization.access_token,
+        uuid: authorization.uuid,
+        name: userSession.name,
+        user_properties: '{}',
+        meta: { type: userSession.type === 'microsoft' ? 'msa' : 'mojang', demo: false }
       },
-      memory: { max: `${maxMB}M`, min: `${minMB}M` },
-      javaPath: javaPathOverride || undefined
+      version: resolvedMcVersion,
+      detached: false,
+      loader: {
+        type: loaderType || null,
+        build: loaderBuild || 'latest',
+        enable: hasLoader
+      },
+      java: {
+        path: javaPathOverride || null,
+        version: requiredJavaMajor || null,
+        type: 'jre'
+      },
+      memory: {
+        min: `${minMB}M`,
+        max: `${maxMB}M`
+      }
     };
 
-    await mcLauncher.launch(opts);
+    mcLauncher.Launch(launchOptions).catch((err) => {
+      const desc = describeLaunchError(err);
+      console.error('Error al lanzar Minecraft (evento tardío):', desc.message);
+      if (desc.stack) console.error(desc.stack);
+      gameIsRunning = false;
+      mainWindow?.webContents.send('launch-status', {
+        state: 'error',
+        message: `Error al lanzar Minecraft: ${desc.message}`
+      });
+    });
 
     setDiscordActivity({
       details: 'Jugando Minecraft',

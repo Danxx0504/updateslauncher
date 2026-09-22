@@ -2531,7 +2531,7 @@
 
   <header>
     <div class="logo"><img id="headerLogoImg" src="assets/aranasinfondo.png" alt="Falcom logo"><span class="logo-text"><span class="logo-bold">Spyder</span> <span class="logo-thin">CLIENT</span></span></div>
-    <span class="version-tag">v1.1.17</span>
+    <span class="version-tag">v1.1.18</span>
   </header>
 
   <div class="main-layout">
@@ -3041,6 +3041,19 @@
     const { ipcRenderer } = require('electron');
 
     const CHANGELOG_ENTRIES = [
+    {
+    version: 'v1.1.18',
+    date: '21 de septiembre de 2026',
+    added: [
+      'Lanzamiento oficial al público'
+    ],
+    improved: [
+      'Nuevo sistema para iniciar Minecraft con Modloaders'
+    ],
+    fixed: [
+      'Arreglado compatibilidad con instancias Forge'
+    ]
+  },
   {
     version: 'v1.1.17',
     date: '13 de septiembre de 2026',
@@ -3048,7 +3061,7 @@
       'Pantalla de carga agregada',
       'Pantalla principal con instancias',
       'Ajustes de RAM automáticos a tu equipo',
-      'Lanzamiento oficial al público'
+      'Lanzamiento para pruebas privadas'
     ],
     improved: [
       'Mejora en todas las interfaces del launcher',
@@ -3223,7 +3236,6 @@
       hwGpu.innerText = 'No disponible';
     });
 
-    // --- RAM asignada ---
     const RAM_MIN_MB = 2048;
     const RAM_MAX_MB = Math.max(RAM_MIN_MB + 512, Math.floor((totalRamMB * 0.75) / 256) * 256);
     const RAM_OPTIMAL_MB = Math.min(RAM_MAX_MB, Math.max(RAM_MIN_MB, Math.round((totalRamMB * 0.5) / 256) * 256));
@@ -3353,7 +3365,8 @@
         description: 'Minecraft Vanilla, sin mods, tal como se juega originalmente.',
         image: 'assets/instances/minecraft-hero.png',
         mcVersion: '1.20.1',
-        customVersion: null,
+        loaderType: null,
+        loaderBuild: null,
         downloadUrl: null,
         requiredJavaMajor: 17
       },
@@ -3363,8 +3376,42 @@
         description: 'Modpack Vanilla+ para jugar con amigos.',
         image: 'assets/instances/spygy.png',
         mcVersion: '26.2',
-        customVersion: 'fabric-loader-0.19.3-26.2',
+        loaderType: 'fabric',
+        loaderBuild: '0.19.3',
         downloadUrl: 'https://github.com/Danxx0504/modpacks/releases/download/v1.0.0/SpyGySMPv1.zip',
+        requiredJavaMajor: 25
+      },
+      'PED3': {
+        id: 'ped3',
+        name: 'PEDsafio 3',
+        description: 'El legendario PEDsafio 3 que ya todos conocemos, ahora para streamers.',
+        image: 'assets/instances/ped.png',
+        mcVersion: '1.20.1',
+        loaderType: 'forge',
+        loaderBuild: 'latest',
+        downloadUrl: 'https://pub-982672b333ec46b8b5de05c0ba0d19b6.r2.dev/ped3.zip',
+        requiredJavaMajor: 17
+      },
+      'PED4': {
+        id: 'ped4',
+        name: 'PEDsafio 4',
+        description: 'El PEDsafio 4, lo que muchos han pedido.',
+        image: 'assets/instances/logoped4.png',
+        mcVersion: '',
+        loaderType: null,
+        loaderBuild: null,
+        downloadUrl: '',
+        requiredJavaMajor: 17
+      },
+      'SPYXTR3MO': {
+        id: 'spyxtr3mo',
+        name: 'SpyXtremo 3',
+        description: 'Minecraft pero extremo. Por Spyder Studios.',
+        image: 'assets/instances/flux3.png',
+        mcVersion: '26.2',
+        loaderType: 'fabric',
+        loaderBuild: '0.19.5',
+        downloadUrl: 'https://github.com/Danxx0504/modpacks/releases/download/v1/fluxtremo3.zip',
         requiredJavaMajor: 25
       }
     };
@@ -3762,7 +3809,7 @@
 
       appConfig.instances = appConfig.instances.filter((i) => i.id !== instancePendingDelete.id);
       delete instanceSizeCache[instancePendingDelete.id];
-      launcherSizeCache = null; // el espacio liberado cambia el tamaño "libre" del launcher/disco
+      launcherSizeCache = null;
 
       if (selectedInstance === instancePendingDelete.id) {
         selectedInstance = appConfig.instances[0]?.id || null;
@@ -3781,7 +3828,6 @@
       deleteInstanceModal.classList.remove('active');
     });
 
-    // Restaurar instancias desbloqueadas guardadas de sesiones anteriores
     if (appConfig.instances.length > 0) {
       selectedInstance = appConfig.instances.some((i) => i.id === appConfig.selectedInstance)
         ? appConfig.selectedInstance
@@ -4043,7 +4089,8 @@
         instance: selectedInstance,
         ram: appConfig.ram,
         mcVersion: instanceInfo?.mcVersion || '1.20.1',
-        customVersion: instanceInfo?.customVersion || null,
+        loaderType: instanceInfo?.loaderType || null,
+        loaderBuild: instanceInfo?.loaderBuild || null,
         downloadUrl: instanceInfo?.downloadUrl || null,
         requiredJavaMajor
       });
@@ -4599,7 +4646,6 @@
       closeChat();
     });
 
-    // --- Estado "en línea" (usando el launcher) de los amigos ---
     const ONLINE_THRESHOLD_MS = 3 * 60 * 1000;
     const friendStatusMap = new Map();
     const friendStatusUnsubscribes = new Map();
@@ -4619,7 +4665,6 @@
       friendStatusUnsubscribes.set(uuid, unsub);
     }
 
-    // --- "Escribiendo..." y mensajes no leídos por chat ---
     function getChatId(uuidA, uuidB) {
       return [uuidA, uuidB].sort().join('_');
     }
@@ -4727,14 +4772,12 @@
       });
     }
 
-    // Heartbeat: refresca lastSeen mientras el launcher esté abierto con sesión Microsoft
     setInterval(() => {
       if (userSession && userSession.type === 'microsoft' && db) {
         upsertSocialUser();
       }
     }, 60000);
 
-    // --- Modal de Añadir amigo ---
     const addFriendModal = document.getElementById('addFriendModal');
     const openAddFriendModalBtn = document.getElementById('openAddFriendModalBtn');
     const closeAddFriendModalBtn = document.getElementById('closeAddFriendModalBtn');
