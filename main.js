@@ -609,7 +609,6 @@ function findBundledJavaExe(javaHomeDir) {
       }
     }
   } catch (err) {
-    // carpeta no existe todavía
   }
   return null;
 }
