@@ -769,7 +769,7 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVers
         meta: { type: userSession.type === 'microsoft' ? 'msa' : 'mojang', demo: false }
       },
       version: resolvedMcVersion,
-      detached: false,
+      detached: true,
       loader: {
         type: loaderType || null,
         build: loaderBuild || 'latest',
