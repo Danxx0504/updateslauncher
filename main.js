@@ -563,6 +563,153 @@ function downloadFileWithProgress(url, destPath, onProgress) {
   });
 }
 
+const SYNC_RECORD_NAME = '.spyder-sync.json';
+const SYNC_CONCURRENCY = 4;
+const EMPTY_FILE_SHA1 = 'da39a3ee5e6b4b0d3255bfef95601890afd80709';
+
+function sha1File(filePath) {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha1');
+    const stream = fs.createReadStream(filePath);
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('error', reject);
+    stream.on('end', () => resolve(hash.digest('hex')));
+  });
+}
+
+function resolveInside(root, relativePath) {
+  const full = path.resolve(root, relativePath);
+  return full.startsWith(root + path.sep) ? full : null;
+}
+
+function isKeptPath(relativePath, keep) {
+  return keep.some((entry) => {
+    const normalized = entry.replace(/\\/g, '/').replace(/\/+$/, '');
+    return relativePath === normalized || relativePath.startsWith(`${normalized}/`);
+  });
+}
+
+async function fetchInstanceManifest(manifestUrl) {
+  let response;
+  try {
+    const separator = manifestUrl.includes('?') ? '&' : '?';
+    response = await fetch(`${manifestUrl}${separator}t=${Date.now()}`, { cache: 'no-store' });
+  } catch (err) {
+    throw Object.assign(new Error('No se pudo contactar con el servidor de actualizaciones.'), { unreachable: true });
+  }
+  if (!response.ok) {
+    throw Object.assign(new Error(`No se pudo obtener la lista de archivos (${response.status}).`), { unreachable: true });
+  }
+  const manifest = await response.json();
+  if (!manifest || !Array.isArray(manifest.files)) {
+    throw new Error('La lista de archivos de la instancia no es válida.');
+  }
+  return manifest;
+}
+
+async function syncInstanceFiles(instancePath, manifestUrl, notify) {
+  const root = path.resolve(instancePath);
+  const recordPath = path.join(root, SYNC_RECORD_NAME);
+  const manifest = await fetchInstanceManifest(manifestUrl);
+  const keep = Array.isArray(manifest.keep) ? manifest.keep.map(String) : [];
+  const baseUrl = typeof manifest.baseUrl === 'string' ? manifest.baseUrl.replace(/\/+$/, '') : '';
+
+  let record = {};
+  try {
+    record = JSON.parse(fs.readFileSync(recordPath, 'utf-8'));
+  } catch (err) {
+    record = {};
+  }
+
+  const wanted = new Map();
+  for (const entry of manifest.files) {
+    const relativePath = String(entry.path || '').replace(/\\/g, '/');
+    const sha1 = String(entry.sha1 || '').toLowerCase();
+    const url = String(entry.url || (baseUrl ? `${baseUrl}/${relativePath.split('/').map(encodeURIComponent).join('/')}` : ''));
+    if (!relativePath || !/^[a-f0-9]{40}$/.test(sha1) || !url.startsWith('https://') || !resolveInside(root, relativePath)) continue;
+    wanted.set(relativePath, { sha1, size: Number(entry.size) || 0, url });
+  }
+
+  const nextRecord = {};
+  const pending = [];
+
+  for (const [relativePath, info] of wanted) {
+    if (record[relativePath] === info.sha1) {
+      nextRecord[relativePath] = info.sha1;
+      continue;
+    }
+    const target = resolveInside(root, relativePath);
+    if (fs.existsSync(target)) {
+      if (isKeptPath(relativePath, keep) || (await sha1File(target)) === info.sha1) {
+        nextRecord[relativePath] = info.sha1;
+        continue;
+      }
+    }
+    pending.push({ relativePath, target, ...info });
+  }
+
+  for (const relativePath of Object.keys(record)) {
+    if (wanted.has(relativePath) || isKeptPath(relativePath, keep)) continue;
+    const target = resolveInside(root, relativePath);
+    if (!target) continue;
+    try {
+      fs.rmSync(target, { force: true });
+    } catch (err) {
+      console.error(`No se pudo borrar ${relativePath}:`, err);
+    }
+  }
+
+  if (pending.length > 0) {
+    notify(`Actualizando instancia (${pending.length} archivo${pending.length === 1 ? '' : 's'})...`);
+
+    const totalBytes = pending.reduce((sum, file) => sum + file.size, 0);
+    const received = new Map();
+    const reportProgress = () => {
+      let sum = 0;
+      received.forEach((value) => {
+        sum += value;
+      });
+      mainWindow?.webContents.send('launch-progress', { type: 'pack', task: sum, total: totalBytes || 1 });
+    };
+
+    let cursor = 0;
+    const worker = async () => {
+      while (cursor < pending.length) {
+        const file = pending[cursor++];
+        const partPath = `${file.target}.spyderpart`;
+        fs.mkdirSync(path.dirname(file.target), { recursive: true });
+        if (file.sha1 === EMPTY_FILE_SHA1) {
+          fs.writeFileSync(file.target, '');
+          nextRecord[file.relativePath] = file.sha1;
+          continue;
+        }
+        await downloadFileWithProgress(file.url, partPath, (downloaded) => {
+          received.set(file.relativePath, downloaded);
+          reportProgress();
+        });
+        if ((await sha1File(partPath)) !== file.sha1) {
+          fs.rmSync(partPath, { force: true });
+          throw new Error(`El archivo ${file.relativePath} se descargó dañado. Inténtalo de nuevo.`);
+        }
+        fs.renameSync(partPath, file.target);
+        nextRecord[file.relativePath] = file.sha1;
+      }
+    };
+
+    const results = await Promise.allSettled(
+      Array.from({ length: Math.min(SYNC_CONCURRENCY, pending.length) }, worker)
+    );
+
+    fs.writeFileSync(recordPath, JSON.stringify(nextRecord));
+
+    const failed = results.find((result) => result.status === 'rejected');
+    if (failed) throw failed.reason;
+    return;
+  }
+
+  fs.writeFileSync(recordPath, JSON.stringify(nextRecord));
+}
+
 function parseJavaMajorVersion(rawOutput) {
   const match = rawOutput.match(/version "(\d+)(?:\.(\d+))?/);
   if (!match) return null;
@@ -659,7 +806,7 @@ async function ensureBundledJava(majorVersion) {
   return exePath;
 }
 
-ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVersion, loaderType, loaderBuild, downloadUrl, requiredJavaMajor }) => {
+ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVersion, loaderType, loaderBuild, downloadUrl, manifestUrl, requiredJavaMajor }) => {
   if (gameIsRunning) {
     return { success: false, error: 'Minecraft ya se está ejecutando.' };
   }
@@ -721,7 +868,7 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVers
     gameIsRunning = true;
     mainWindow?.webContents.send('launch-log', `[LAUNCHER] Carpeta de la instancia: ${instancePath}`);
 
-    if (!alreadyInstalled && downloadUrl) {
+    if (!alreadyInstalled && /^https:\/\//.test(String(downloadUrl || ''))) {
       mainWindow?.webContents.send('launch-status', {
         state: 'downloading-pack',
         message: 'Descargando modpack (primera vez)...'
@@ -748,6 +895,22 @@ ipcMain.handle('launch-game', async (event, { userSession, instance, ram, mcVers
         fs.unlinkSync(zipPath);
       } catch (err) {
         console.error('No se pudo borrar el zip temporal del modpack:', err);
+      }
+    }
+
+    if (manifestUrl) {
+      mainWindow?.webContents.send('launch-status', {
+        state: 'downloading-pack',
+        message: 'Buscando actualizaciones de la instancia...'
+      });
+
+      try {
+        await syncInstanceFiles(instancePath, manifestUrl, (message) => {
+          mainWindow?.webContents.send('launch-status', { state: 'downloading-pack', message });
+        });
+      } catch (err) {
+        if (!(err.unreachable && fs.existsSync(versionMarkerPath))) throw err;
+        console.error('Sin conexión con el servidor de actualizaciones, se usan los archivos locales:', err.message);
       }
     }
 

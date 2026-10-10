@@ -80,6 +80,25 @@
       overflow: hidden;
     }
 
+    .bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease;
+    }
+
+    .bg-layer.visible {
+      opacity: 1;
+    }
+
     header {
       padding: 20px 30px;
       background: var(--bg-header);
@@ -2529,9 +2548,12 @@
 </head>
 <body>
 
+  <div class="bg-layer" id="bgLayerA"></div>
+  <div class="bg-layer" id="bgLayerB"></div>
+
   <header>
     <div class="logo"><img id="headerLogoImg" src="assets/aranasinfondo.png" alt="Falcom logo"><span class="logo-text"><span class="logo-bold">Spyder</span> <span class="logo-thin">CLIENT</span></span></div>
-    <span class="version-tag">v1.1.21</span>
+    <span class="version-tag">v1.1.22</span>
   </header>
 
   <div class="main-layout">
@@ -3041,8 +3063,18 @@
     const { ipcRenderer } = require('electron');
 
     const CHANGELOG_ENTRIES = [
+      {
+    version: 'v1.1.22',
+    date: '10 de octubre de 2026',
+    added: [
+      'Actualizaciones automáticas de instancias',
+      'Fondo personalizado dependiendo Instancia Seleccionada'
+    ],
+    improved: [],
+    fixed: []
+    },
     {
-    version: 'v1.1.20',
+    version: 'v1.1.21',
     date: '25 de septiembre de 2026',
     added: [],
     improved: [],
@@ -3388,17 +3420,19 @@
         loaderType: 'fabric',
         loaderBuild: '0.19.3',
         downloadUrl: 'https://github.com/Danxx0504/modpacks/releases/download/v1.0.0/SpyGySMPv1.zip',
+        manifestUrl: 'https://github.com/Danxx0504/modpacks/releases/download/spygysmp/manifest.json',
         requiredJavaMajor: 25
       },
-      'PED3STREAMERS': {
+      'PEDSAFIO3RFS': {
         id: 'ped3',
         name: 'PEDsafio 3',
         description: 'El legendario PEDsafio 3 que ya todos conocemos, ahora para streamers.',
         image: 'assets/instances/ped.png',
         mcVersion: '1.20.1',
-        loaderType: 'forge',
-        loaderBuild: 'latest',
-        downloadUrl: 'https://pub-982672b333ec46b8b5de05c0ba0d19b6.r2.dev/ped3.zip',
+        loaderType: 'fabric',
+        loaderBuild: '0.19.5',
+        downloadUrl: null,
+        manifestUrl: 'https://github.com/Danxx0504/modpacks/releases/download/ped3/manifest.json',
         requiredJavaMajor: 17
       },
       'PED4TEST': {
@@ -3421,6 +3455,19 @@
         loaderType: 'fabric',
         loaderBuild: '0.19.5',
         downloadUrl: 'https://github.com/Danxx0504/modpacks/releases/download/v1/fluxtremo3.zip',
+        manifestUrl: 'https://github.com/Danxx0504/modpacks/releases/download/spyxtr3mo/manifest.json',
+        requiredJavaMajor: 25
+      },
+      'VAAKOUTBREAKBETATEST': {
+        id: 'vaakoutbreak',
+        name: 'VaaK Outbreak',
+        description: 'Un mundo Postacalíptico donde los Zombies arrasaron con todo a su paso. Spyder Studios x VaaKGaming.',
+        image: 'assets/instances/vaakoutbreak.png',
+        mcVersion: '1.21.1',
+        loaderType: 'fabric',
+        loaderBuild: '0.19.5',
+        downloadUrl: 'https://github.com/Danxx0504/modpacks/releases/download/test/vaakoutbreak.zip',
+        manifestUrl: 'https://github.com/Danxx0504/modpacks/releases/download/vaakoutbreak/manifest.json',
         requiredJavaMajor: 25
       }
     };
@@ -3455,6 +3502,47 @@
 
     function saveInstancesConfig() {
       fs.writeFileSync(configPath, JSON.stringify(appConfig, null, 2));
+    }
+
+    const bgLayers = [document.getElementById('bgLayerA'), document.getElementById('bgLayerB')];
+    let bgActiveIndex = 0;
+    let bgCurrentImage = null;
+    let bgToken = 0;
+
+    function setBackgroundImage(image) {
+      if (image === bgCurrentImage) return;
+      bgCurrentImage = image;
+      const token = ++bgToken;
+
+      if (!image) {
+        bgLayers.forEach((layer) => layer.classList.remove('visible'));
+        return;
+      }
+
+      const probe = new Image();
+      probe.onload = () => {
+        if (token !== bgToken) return;
+        const previous = bgLayers[bgActiveIndex];
+        const next = bgLayers[1 - bgActiveIndex];
+        next.style.backgroundImage = `linear-gradient(var(--bg-overlay), var(--bg-overlay)), url("${image}")`;
+        next.style.zIndex = '-1';
+        previous.style.zIndex = '-2';
+        next.classList.add('visible');
+        bgActiveIndex = 1 - bgActiveIndex;
+        setTimeout(() => {
+          if (token === bgToken) previous.classList.remove('visible');
+        }, 500);
+      };
+      probe.onerror = () => {
+        if (token !== bgToken) return;
+        bgLayers.forEach((layer) => layer.classList.remove('visible'));
+      };
+      probe.src = image;
+    }
+
+    function getSelectedInstanceImage() {
+      const inst = appConfig.instances.find((i) => i.id === selectedInstance);
+      return inst ? getInstanceDisplayInfo(inst).image : null;
     }
 
     function updateSelectedInstanceLabel() {
@@ -3524,6 +3612,8 @@
           </div>
         `;
         tile.addEventListener('click', () => openInstanceDetailModal(inst));
+        tile.addEventListener('mouseenter', () => setBackgroundImage(info.image || getSelectedInstanceImage()));
+        tile.addEventListener('mouseleave', () => setBackgroundImage(getSelectedInstanceImage()));
         instanceCardsGrid.appendChild(tile);
       });
 
@@ -3537,6 +3627,7 @@
       instanceCardsGrid.appendChild(addTile);
 
       updateSelectedInstanceLabel();
+      setBackgroundImage(getSelectedInstanceImage());
     }
 
     function addUnlockedInstance(inst) {
@@ -4101,6 +4192,7 @@
         loaderType: instanceInfo?.loaderType || null,
         loaderBuild: instanceInfo?.loaderBuild || null,
         downloadUrl: instanceInfo?.downloadUrl || null,
+        manifestUrl: instanceInfo?.manifestUrl || null,
         requiredJavaMajor
       });
 
